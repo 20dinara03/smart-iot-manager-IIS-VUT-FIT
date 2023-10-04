@@ -1,0 +1,36 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres
+    restart: always
+    env_file:
+      - env/db.env
+    volumes:
+      - ./db/scripts:/docker-entrypoint-initdb.d
+    ports:
+      - "5432:5432"
+    networks:
+      - common
+  app:
+    container_name: grafita
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    env_file:
+      - env/grafita.dev.env
+      - env/db.env
+    environment:
+      - DB_HOST=db
+    volumes:
+      - ./src:/www/src
+    ports:
+      - "80:8000"
+    depends_on:
+      - db
+    networks:
+      - common
+
+networks:
+  common:
