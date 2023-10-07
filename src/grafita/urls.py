@@ -4,6 +4,6 @@ from .views import Dashboard, AuthenticationLoginView, AuthenticationRegisterVie
 
 urls = [
     path("dashboard/", Dashboard.as_view(), name="dashboard"),
-    path("auth/", AuthenticationLoginView.as_view(), name="login"),
+    path("login/", AuthenticationLoginView.as_view(), name="login"),
     path("register/", AuthenticationRegisterView.as_view(), name="register"),
 ]
