@@ -1,2 +1,2 @@
 from .dashboard import Dashboard
-from .auth import AuthenticationLoginView, AuthenticationRegisterView
+from .auth import AuthenticationLoginView, AuthenticationRegisterView, logout

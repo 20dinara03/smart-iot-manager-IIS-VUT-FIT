@@ -1,6 +1,8 @@
 from typing import Final, TypedDict
 
 from django import forms
+from django.contrib.auth import authenticate, login, logout as django_logout
+from django.contrib.auth.models import User
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.views.generic import FormView
@@ -12,19 +14,32 @@ LoginFormDict = TypedDict("LoginFormDict", {
 })
 
 
-class LoginForm(forms.Form):
-    username: Final = forms.CharField()
-    password: Final = forms.CharField(widget=forms.PasswordInput)
+class LoginForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ["username", "password"]
 
-    def is_valid(self):
-        form = self.get_context()["form"].clean()
-        # TODO:
-        return form["username"] != "admin"
+    def validate_unique(self):
+        pass
 
 
 class RegisterForm(LoginForm):
-    email: Final = forms.EmailField()
-    password2: Final = forms.CharField(widget=forms.PasswordInput)
+    password2 = forms.CharField(widget=forms.PasswordInput)
+
+
+    class Meta:
+        model = User
+        fields = ["username", "email", "password", "password2"]
+
+
+    def is_valid(self):
+        valid = super().is_valid()
+        if not valid:
+            return False
+        data = self.clean()
+        if data["password"] != data["password2"]:
+            self.add_error("password2", "Passwords do not match.")
+        return True
 
 
 class AuthenticationLoginView(FormView):
@@ -44,10 +59,59 @@ class AuthenticationLoginView(FormView):
         return ContextMixin.get_context_data(self, **kwargs)
 
     def form_invalid(self, form):
-        context = self.get_context_data(form=form)
-        context.update({"error": "Invalid username or password."})
+        context = self.get_context_data()
+        for value in form.errors.values():
+            context["error"] = value
+            break
         return render(self.request, self.template_name, context)
+
+    def form_valid(self, form):
+        form = form.clean()
+        user = authenticate(username=form["username"], password=form["password"])
+
+        if user is not None:
+            login(self.request, user)
+            return HttpResponseRedirect(self.success_url)
+        context = self.get_context_data()
+        context["error"] = "Invalid username or password."
+        return render(self.request, self.template_name, context)
+
+
+def logout(request):
+    django_logout(request)
+    return HttpResponseRedirect("/")
 
 
 class AuthenticationRegisterView(AuthenticationLoginView):
     form_class = RegisterForm
+
+    @staticmethod
+    def get_error_if_exists(form) -> str:
+        """ Check if the form is valid.
+        """
+        data = form.clean()
+        if data["password"] != data["password2"]:
+            return "Passwords do not match."
+
+        if User.objects.filter(username=data["username"]).exists():
+            return "Username already exists."
+
+    def form_valid(self, form) -> HttpResponseRedirect:
+        error = self.get_error_if_exists(form)
+
+        if error:
+            context = self.get_context_data()
+            context["error"] = error
+            return render(self.request, self.template_name, context)
+
+        self.create_and_login(form)
+
+        return HttpResponseRedirect(self.success_url)
+
+    def create_and_login(self, form) -> None:
+        user = User.objects.create_user(
+            username=form["username"],
+            password=form["password"],
+            email=form["email"],
+        )
+        login(self.request, user)
