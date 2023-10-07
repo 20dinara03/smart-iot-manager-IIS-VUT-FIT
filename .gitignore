@@ -1,7 +1,6 @@
 env
 tmp
 nsc
-db
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

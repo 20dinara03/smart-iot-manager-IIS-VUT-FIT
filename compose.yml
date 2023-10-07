@@ -2,16 +2,18 @@ version: "3.9"
 
 services:
   db:
-    image: postgres
-    restart: always
+    image: timescale/timescaledb:latest-pg15
     env_file:
-      - env/db.env
+      - devenv/db.env
     volumes:
-      - ./db/scripts:/docker-entrypoint-initdb.d
-    ports:
-      - "5432:5432"
-    networks:
-      - common
+      - db_data:/home/postgres/pgdata/data
+      - ./db/scripts/create_user.sql:/docker-entrypoint-initdb.d/create_user.sql
+    # for local development
+    network_mode: "host"
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "grafita", "-d", "grafitadb"]
+      timeout: 40s
+      interval: 5s
   app:
     container_name: grafita
     build:
@@ -19,18 +21,15 @@ services:
       dockerfile: Dockerfile
     restart: always
     env_file:
-      - env/grafita.dev.env
-      - env/db.env
-    environment:
-      - DB_HOST=db
+      - devenv/grafita.env
+      - devenv/db.env
     volumes:
       - ./src:/www/src
-    ports:
-      - "80:8000"
+    # to connect db on localhost
+    network_mode: "host"
     depends_on:
-      - db
-    networks:
-      - common
+      db:
+        condition: service_healthy
 
-networks:
-  common:
+volumes:
+  db_data:

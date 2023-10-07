@@ -79,8 +79,8 @@ ASGI_APPLICATION = "core.asgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": "postgres",
+        "ENGINE": "timescale.db.backends.postgresql",
+        "NAME": os.environ["DB_NAME"],
         "USER": os.environ["GRAFITA_USER"],
         "PASSWORD": os.environ["GRAFITA_PASSWORD"],
         "HOST": os.environ["DB_HOST"],

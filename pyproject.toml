@@ -6,10 +6,11 @@ authors = ["pomo <mark.barzali@firma.seznam.cz>"]
 
 [tool.poetry.dependencies]
 python = "^3.11"
-django = "^4.2.5"
+django = "4.1.0"
 gunicorn = "^21.2.0"
-psycopg2-binary = "^2.9.9"
 uvicorn = "^0.23.2"
+django-timescaledb = "^0.2.13"
+psycopg2-binary = "^2.9.9"
 
 
 [build-system]
