@@ -1,24 +1,88 @@
 {% extends "_base.html" %}
+
+{% block body %}
+<body style="background: linear-gradient(90deg, rgba(13,126,140,1) 0%, rgba(9,87,121,1) 20%, rgba(9,78,121,1) 50%, rgba(9,87,121,1) 80%, rgba(13,126,140,1) 100%);">
+{% endblock %}
+
 {% block header %} {% endblock %}
+
 {% block content %}
-    <h1>Login</h1>
-    {% if error %}
-        <p class="error">{{ error }}</p>
-    {% endif %}
-    <form method="post" action={% url "login" %}>
-        {% csrf_token %}
-        {{ login }}
-        <p><input type="submit" value="Login"></p>
-    </form>
+    <div class="row align-items-center">
+        <div class="col bg-white rounded">
+            <div class="container py-5">
+                <ul class="nav nav-tabs justify-content-center">
+                    <li class="nav-item">
+                        <a id="login-tab" class="nav-link active link" aria-current="page" href="#login"
+                           onclick="showLogin()" style="text-decoration: none">
+                            <h4>Login</h4>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a id="register-tab" class="nav-link" href="#register" onclick="showRegister()" style="text-decoration: none">
+                            <h4>Register</h4>
+                        </a>
+                    </li>
+                </ul>
 
+                <div id="login" class="justify-content-center container py-5">
+                    {% if error %}
+                        <div class="alert alert-danger d-flex align-items-center" role="alert">
+                            <div>
+                                {{ error }}
+                            </div>
+                        </div>
+                    {% endif %}
+                    <form method="post" action={% url "login" %}>
+                        {% csrf_token %}
+                        {{ login }}
+                        <button type="submit" class="btn btn-dark">Login</button>
+                    </form>
+                </div>
 
-    <h1>Register</h1>
-    {% if error %}
-        <p class="error">{{ error }}</p>
-    {% endif %}
-    <form method="post" action={% url "register" %}>
-        {% csrf_token %}
-        {{ register }}
-        <p><input type="submit" value="Register"></p>
-    </form>
+                <div id="register" hidden="hidden" class="justify-content-center container py-5">
+                    {% if error %}
+                        <div class="alert alert-danger d-flex align-items-center" role="alert">
+                            {{ error }}
+                        </div>
+                    {% endif %}
+                    <form method="post" action={% url "register" %}>
+                        {% csrf_token %}
+                        {{ register }}
+                        <button type="submit" class="btn btn-dark">Register</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col py-0" style="height: 100vh;max-height: 100vh">
+            <div class="d-flex justify-content-center align-items-center h-100" style="height: 200px;">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/VUT_CZ.svg" class="img-fluid py-0"
+                     alt="vut">
+            </div>
+
+        </div>
+    </div>
+{% endblock %}
+
+{% block script %}
+    <script>
+        if (window.location.href.includes("register")) {
+            showRegister();
+        } else {
+            showLogin();
+        }
+
+        function showLogin() {
+            document.getElementById("login").hidden = false;
+            document.getElementById("login-tab").classList.add("active");
+            document.getElementById("register").hidden = true;
+            document.getElementById("register-tab").classList.remove("active");
+        }
+
+        function showRegister() {
+            document.getElementById("login").hidden = true;
+            document.getElementById("login-tab").classList.remove("active");
+            document.getElementById("register").hidden = false;
+            document.getElementById("register-tab").classList.add("active");
+        }
+    </script>
 {% endblock %}

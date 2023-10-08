@@ -15,6 +15,10 @@ LoginFormDict = TypedDict("LoginFormDict", {
 
 
 class LoginForm(forms.ModelForm):
+    template_name = "snippets/standard_form.html"
+    username = forms.CharField(widget=forms.TextInput(attrs={"placeholder": "Username", "class": "form-control"}))
+    password = forms.CharField(widget=forms.PasswordInput(attrs={"class": "form-control"}))
+
     class Meta:
         model = User
         fields = ["username", "password"]
@@ -24,8 +28,8 @@ class LoginForm(forms.ModelForm):
 
 
 class RegisterForm(LoginForm):
-    password2 = forms.CharField(widget=forms.PasswordInput)
-
+    password2 = forms.CharField(widget=forms.PasswordInput(attrs={"class": "form-control"}))
+    email = forms.EmailField(widget=forms.EmailInput(attrs={"placeholder": "Email", "class": "form-control"}))
 
     class Meta:
         model = User
@@ -39,6 +43,7 @@ class RegisterForm(LoginForm):
         data = self.clean()
         if data["password"] != data["password2"]:
             self.add_error("password2", "Passwords do not match.")
+            return False
         return True
 
 
@@ -90,8 +95,6 @@ class AuthenticationRegisterView(AuthenticationLoginView):
         """ Check if the form is valid.
         """
         data = form.clean()
-        if data["password"] != data["password2"]:
-            return "Passwords do not match."
 
         if User.objects.filter(username=data["username"]).exists():
             return "Username already exists."
@@ -109,9 +112,10 @@ class AuthenticationRegisterView(AuthenticationLoginView):
         return HttpResponseRedirect(self.success_url)
 
     def create_and_login(self, form) -> None:
+        data = form.clean()
         user = User.objects.create_user(
-            username=form["username"],
-            password=form["password"],
-            email=form["email"],
+            username=data["username"],
+            email=data["email"],
+            password=data["password"],
         )
         login(self.request, user)

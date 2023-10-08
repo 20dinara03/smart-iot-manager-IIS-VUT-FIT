@@ -11,7 +11,9 @@
             integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
             crossorigin="anonymous"></script>
 </head>
+{% block body %}
 <body>
+{% endblock %}
 
 {% block header %}
     <nav class="navbar navbar-expand-lg bg-body-tertiary">
@@ -67,10 +69,13 @@
     </nav>
 {% endblock %}
 
-<div class="container-md text-dark-emphasis border-dark">
+<div class="container text-dark-emphasis border-dark">
     {% block content %}
         some
     {% endblock %}
 </div>
+
+{% block script %}
+{% endblock %}
 </body>
 </html>
