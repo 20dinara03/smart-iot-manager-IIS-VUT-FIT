@@ -9,13 +9,16 @@ services:
       - db_data:/home/postgres/pgdata/data
       - ./db/scripts/create_user.sql:/docker-entrypoint-initdb.d/create_user.sql
     # for local development
-    network_mode: "host"
+    networks:
+      appnetworks:
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "grafita", "-d", "grafitadb"]
       timeout: 40s
       interval: 5s
   app:
     container_name: grafita
+    ports:
+      - "8000:8000"
     build:
       context: .
       dockerfile: Dockerfile
@@ -26,10 +29,14 @@ services:
     volumes:
       - ./src:/www/src
     # to connect db on localhost
-    network_mode: "host"
+    networks:
+      appnetworks:
     depends_on:
       db:
         condition: service_healthy
 
 volumes:
   db_data:
+
+networks:
+  appnetworks:
