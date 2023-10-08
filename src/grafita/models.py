@@ -21,6 +21,13 @@ class Device(models.Model):
     device_type = models.ForeignKey(DeviceType, on_delete=models.CASCADE)
     device_group = models.ForeignKey(DeviceGroup, on_delete=models.CASCADE)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    value_min = models.FloatField(null=True, blank=True)
+    value_max = models.FloatField(null=True, blank=True)
+    default_kpi = models.ForeignKey("KPI", on_delete=models.SET_NULL, null=True, blank=True)
+
+
+class KPI(models.Model):
+    name = models.CharField(max_length=100)
 
 
 class Metric(TimescaleModel):
