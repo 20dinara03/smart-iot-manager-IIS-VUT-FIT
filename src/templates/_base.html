@@ -25,7 +25,7 @@
             <div class="collapse navbar-collapse justify-content-center" id="navbarSupportedContent">
                 <ul class="navbar-nav mb-2 mb-lg-0">
                     <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="#">Home</a>
+                        <a class="nav-link active" aria-current="page" href={% url "dashboard" %}>Dashboard</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="#">Link</a>
@@ -51,16 +51,26 @@
             </div>
             <div class="justify-content-end">
                 {% if user.is_authenticated %}
-                    <a class="btn btn-outline-success" href={% url 'logout' %}>Logout</a>
+                    <button class="btn btn-primary">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
+                         class="bi bi-person-fill" viewBox="0 0 16 16">
+                        <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H3Zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"></path>
+                    </svg>
+                    {{ user.username }}
+                    </button>
+                    <a class="btn btn-outline-danger" href={% url 'logout' %}>Logout</a>
                 {% else %}
-                    <a class="btn btn-outline-success" href={% url 'login' %}>Login</a>
+                    <a class="btn btn-outline-dark" href={% url 'login' %}>Login</a>
                 {% endif %}
             </div>
         </div>
     </nav>
 {% endblock %}
 
-{% block content %}
-{% endblock %}
+<div class="container-md text-dark-emphasis border-dark">
+    {% block content %}
+        some
+    {% endblock %}
+</div>
 </body>
 </html>
