@@ -1,4 +1,5 @@
 from django.contrib.auth.models import User
+from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from timescale.db.models.models import TimescaleDateTimeField, TimescaleModel
 
@@ -11,6 +12,7 @@ class DeviceGroup(models.Model):
 class DeviceType(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField()
+    attributes = ArrayField(models.CharField(max_length=100), null=True, blank=True)
 
 
 class Device(models.Model):
@@ -35,3 +37,4 @@ class Metric(TimescaleModel):
 
     value = models.FloatField()
     device = models.ForeignKey(Device, on_delete=models.CASCADE)
+    attribute = models.CharField(max_length=100)
