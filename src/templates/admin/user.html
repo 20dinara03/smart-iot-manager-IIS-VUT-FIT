@@ -1,0 +1,85 @@
+{% extends "_base.html" %}
+
+{% block title %} Users {% endblock %}
+
+{% block content %}
+
+    <div class="container">
+        <div class="row d-flex">
+            <div class="col">
+                <h1>Users</h1>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <ul class="list-group">
+                    {% for user in object_list %}
+                        <li id="li-{{ user.id }}"
+                            class="list-group-item d-flex justify-content-between align-items-center list-group-item-action"
+                            onclick="change_li_active({{ user.id }})">
+                            {{ user.username }}
+                        </li>
+                        {% empty %}
+                        <div class="row">
+                            <p class="text-center">No users are there.</p>
+                        </div>
+
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <div class="col">
+                <div id="card" class="card" hidden="hidden">
+                    <h5 id="card-name" class="card-header">js will change</h5>
+                    <div class="card-body">
+                        <div style="padding-bottom: 20px">
+                            {% for group in user.groups.all %}
+                                <span class="badge bg-danger rounded-pill">{{ group.name }}</span>
+                                {% empty %}
+                                <i class="text-dark">User has no groups</i>
+                            {% endfor %}
+                        </div>
+
+                        <div class="d-flex justify-content-start">
+                            <a id="user-edit" type="submit" class="btn btn-primary" href="/user/<pk>">Edit</a>
+                            <div style="padding-right: 20px"></div>
+                            <form id="user-block" method="post" action="/user/block/<pk>">
+                                {% csrf_token %}
+                                <input type="hidden">
+                                <button class="btn btn-danger">Block</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block script %}
+    <script>
+        function change_li_active(id) {
+            let li = document.getElementById('li-' + id);
+            let lis = document.getElementsByClassName('list-group-item');
+            for (let i = 0; i < lis.length; i++) {
+                lis[i].classList.remove('active');
+            }
+            li.classList.add('active');
+
+            let card = document.getElementById('card');
+            card.removeAttribute('hidden');
+
+            let user_edit = document.getElementById('user-edit');
+            user_edit.setAttribute('href', '/user/' + id);
+
+            let user_block = document.getElementById('user-block');
+            user_block.setAttribute('action', '/user/block/' + id);
+
+            let card_name = document.getElementById('card-name');
+            card_name.innerHTML = li.innerHTML;
+        }
+    </script>
+{% endblock %}
