@@ -23,12 +23,12 @@ class DeviceForm(forms.ModelForm):
 class DeviceList(ListView):
     model = Device
     paginate_by = 100
-    template_name = 'user/devices.html'
+    template_name = 'devices.html'
 
 
 class DeviceDetail(DetailView):
     model = Device
-    template_name = 'user/device_detail.html'
+    template_name = 'device_detail.html'
 
     def dispatch(self, request, *args, **kwargs):
         if request.method == "POST":
@@ -50,7 +50,7 @@ class DeviceDetail(DetailView):
 class CreateDeviceView(CreateView):
     model = Device
     form_class = DeviceForm
-    template_name = 'authorised/create_device.html'
+    template_name = 'create_device.html'
 
     def post(self, request, *args, **kwargs):
         device_form = DeviceForm(request.POST)
@@ -84,11 +84,11 @@ class CreateDeviceView(CreateView):
             device.save()
 
             return HttpResponseRedirect("/devices")
-        return render(request, 'authorised/create_device.html',
+        return render(request, 'create_device.html',
                       {'device_form': device_form, 'device_type_form': device_type_form})
 
     def get(self, request, *args, **kwargs):
         device_form = DeviceForm()
         device_type_form = DeviceTypeForm()
-        return render(request, 'authorised/create_device.html',
+        return render(request, 'create_device.html',
                       {'device_form': device_form, 'device_type_form': device_type_form})
