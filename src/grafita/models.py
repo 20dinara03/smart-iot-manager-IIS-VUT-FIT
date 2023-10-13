@@ -6,12 +6,12 @@ from timescale.db.models.models import TimescaleDateTimeField, TimescaleModel
 
 class DeviceGroup(models.Model):
     name = models.CharField(max_length=100)
-    description = models.TextField()
+    description = models.TextField(blank=True, null=True)
 
 
 class DeviceType(models.Model):
     name = models.CharField(max_length=100)
-    description = models.TextField()
+    description = models.TextField(null=True, blank=True)
     attributes = ArrayField(models.CharField(max_length=100), null=True, blank=True)
 
 
