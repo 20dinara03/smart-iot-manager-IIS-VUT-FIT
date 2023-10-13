@@ -11,6 +11,10 @@ from grafita.models import Device, DeviceType
 class DeviceForm(forms.ModelForm):
     template_name = "snippets/standard_form.html"
 
+    description = forms.CharField(
+        widget=forms.Textarea(attrs={'rows': 3}),
+        required=False
+    )
 
     class Meta:
         model = Device
@@ -91,7 +95,7 @@ class CreateDeviceView(CreateView):
                       {'device_form': device_form, 'device_type_form': device_type_form})
 
     def get(self, request, *args, **kwargs):
-        device_form = DeviceForm()
+        device_form = DeviceForm
         device_type_form = DeviceTypeForm()
         return render(request, 'create_device.html',
                       {'device_form': device_form, 'device_type_form': device_type_form})
