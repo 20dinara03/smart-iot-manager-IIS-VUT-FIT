@@ -1,0 +1,99 @@
+{% extends "_base.html" %}
+
+{% block title %} Groups {% endblock %}
+
+{% block content %}
+
+    <div class="container">
+        <div class="row d-flex">
+            <div class="col">
+                <h1>Groups</h1>
+            </div>
+            <div class="col ml-auto">
+                <form method="post">
+                    {% csrf_token %}
+                    <button class="btn btn-primary float-end" type="submit">New Group</button>
+                    <label for="name" class="float-end">
+                        <input type="text" name="name" class="form-control float-end" placeholder="New Group Name">
+                    </label>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <ul class="list-group">
+                    {% for group in object_list %}
+                        <li id="li-{{ group.id }}"
+                            class="list-group-item d-flex justify-content-between align-items-center list-group-item-action"
+                            onclick="change_li_active({{ group.id }})">
+                            {{ group.name }}
+                            <span class="badge bg-danger rounded-pill" onclick="delete_group({{ group.id }})"
+                                  style="cursor: pointer;">delete</span>
+                        </li>
+                        {% empty %}
+                        <div class="row">
+                            <p class="text-center">No groups are available.</p>
+                        </div>
+
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="col">
+                <div id="card" class="card" hidden="hidden">
+                    <h5 id="card-name" class="card-header">Featured</h5>
+                    <div class="card-body">
+                        <h5 class="card-title">Description</h5>
+                        <p class="card-text">hardcoded long long long description. why why do I have this.</p>
+                        <a id="group-link" href="/group/" class="btn btn-primary">Edit</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block script %}
+    <script>
+
+        function delete_group(id) {
+            let csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            let request = new XMLHttpRequest();
+            request.open('POST', '/group/' + id, true);
+
+            let form = new FormData();
+            form.append('csrfmiddlewaretoken', csrftoken);
+            form.append('id', id);
+            form.append('action', 'delete');
+
+            request.send(form);
+
+            setTimeout(function () {
+                location.reload();
+            }, 500);
+        }
+
+    </script>
+    <script>
+        function change_li_active(id) {
+            let li = document.getElementById('li-' + id);
+            let lis = document.getElementsByClassName('list-group-item');
+            for (let i = 0; i < lis.length; i++) {
+                lis[i].classList.remove('active');
+            }
+            li.classList.add('active');
+
+            let card = document.getElementById('card');
+            card.removeAttribute('hidden');
+
+            let group_link = document.getElementById('group-link');
+            group_link.setAttribute('href', '/group/' + id);
+
+            let card_name = document.getElementById('card-name');
+            card_name.innerHTML = li.innerHTML;
+        }
+    </script>
+{% endblock %}

@@ -1,0 +1,57 @@
+{% extends "_base.html" %}
+
+{% block content %}
+    <div class="card">
+        <div class="card-body">
+            <div class="fs-3">
+                Role
+                <span class="badge bg-dark rounded-pill">{{ object.name }}</span>
+
+            </div>
+            <h3 style="padding-top: 50px">Permissions</h3>
+
+            <div class="container">
+                <div class="row">
+                    <div class="col-6">
+                        <ul class="list-group" style="padding-top: 25px">
+                            {% for perm in object.permissions.all %}
+                                <li class="list-group-item d-flex justify-content-between align-items-center list-group-item-action">
+                                    {{ perm.name }}
+                                    <form action="/group/{{ object.id }}/permission/remove" method="post">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="permission" value="{{ perm.id }}">
+                                        <button class="button btn-danger btn">X</button>
+                                    </form>
+                                </li>
+                                {% empty %}
+                                <p>No permissions</p>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    <div class="col-6 position-top">
+
+                        <div class="card">
+                            <div class="card-body">
+                                <h5>Edit Role</h5>
+                                <div class="col-auto">
+                                    <form class="row g-3" method="post" action="/group/{{ object.id }}/permission/add">
+                                        {% csrf_token %}
+                                        <select name="permission" class="form-select"
+                                                aria-label="Default select example">
+                                            {% for perm in permissions %}
+                                                <option value="{{ perm.id }}">{{ perm.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                        <div class="col-auto">
+                                            <button type="submit" class="btn btn-primary mb-3">Add Permission</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
