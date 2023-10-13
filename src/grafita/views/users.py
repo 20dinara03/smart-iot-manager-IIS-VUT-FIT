@@ -27,7 +27,8 @@ class UserDetail(DetailView):
     def post(request, pk: int):
         user: User = User.objects.get(pk=pk)
         data = request.POST
-        user.set_password(data['password'])
+        if data['password']:
+            user.set_password(data['password'])
         user.email = data['email']
         user.first_name = data['first_name']
         user.last_name = data['last_name']
