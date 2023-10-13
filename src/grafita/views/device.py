@@ -1,14 +1,17 @@
 from django import forms
 from django.core.exceptions import PermissionDenied
-from grafita.models import Device, DeviceType
-from django.views.generic import ListView, DetailView, CreateView
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
+from django.views.generic import CreateView, DetailView, ListView
 
 from grafita.views.types import DeviceTypeForm
+from grafita.models import Device, DeviceType
 
 
 class DeviceForm(forms.ModelForm):
+    template_name = "snippets/standard_form.html"
+
+
     class Meta:
         model = Device
         fields = ['name', 'model', 'description', 'location', 'device_type', 'device_group', 'created_by', 'value_min',
