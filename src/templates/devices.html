@@ -1,0 +1,46 @@
+{% extends "_base.html" %}
+
+{% block title %} Your Devices {% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-8">
+                <h1>Your Devices</h1>
+                <table class="table">
+                    <tbody>
+                        {% for device in object_list %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="device-info">
+                                            <h4>{{ device.name }}</h4>
+                                            <p>{{ device.device_type }}</p>
+                                            <p>{{ device.description }}</p>
+                                        </div>
+                                        <!-- Place for the device chart goes here -->
+                                    </div>
+                                </td>
+                                <td>
+                                    <a href="{% url 'device_detail' device.pk %}" class="btn btn-info">Details</a>
+                                    <form method="post" action="{% url 'device_delete' device.pk %}">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="action" value="delete">
+                                        <button type="submit" class="btn btn-danger">Delete</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="2">No devices available.</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-4">
+                <a href="{% url 'create_device' %}" class="btn btn-primary">Add Device</a>
+            </div>
+        </div>
+    </div>
+{% endblock %}
