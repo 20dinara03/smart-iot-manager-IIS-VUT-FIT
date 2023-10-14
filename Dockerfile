@@ -12,7 +12,7 @@ RUN apk add libpq-dev
 USER grafita
 
 COPY --chown=grafita:grafita poetry.lock pyproject.toml /www/
-RUN poetry install --no-interaction
+RUN poetry install --no-interaction --only main
 
 # copy entrypoint.sh
 COPY --chown=grafita:grafita docker/entrypoint.sh .

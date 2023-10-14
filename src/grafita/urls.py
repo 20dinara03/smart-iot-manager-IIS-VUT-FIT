@@ -1,18 +1,7 @@
 from django.urls import path
 
-from .views import (
-    AuthenticationLoginView,
-    AuthenticationRegisterView,
-    Dashboard,
-    logout,
-    GroupList,
-    ConcreteGroup,
-    Users,
-    UserDetail,
-    update_user_groups,
-)
-
-from .views import Dashboard, AuthenticationLoginView, AuthenticationRegisterView, logout, DeviceList, DeviceDetail, CreateDeviceView
+from .views import (AuthenticationLoginView, AuthenticationRegisterView, ConcreteGroup, CreateDeviceView, Dashboard,
+                    DeviceDetail, DeviceList, GroupList, logout, update_user_groups, UserDetail, Users)
 
 urls = [
     path("dashboard/", Dashboard.as_view(), name="dashboard"),
