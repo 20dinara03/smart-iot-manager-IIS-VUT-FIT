@@ -1,6 +1,10 @@
+import logging
+from datetime import datetime
 from typing import TypedDict
 
+from django.db.models import QuerySet
 from django.http import Http404
+from django.utils import timezone
 from rest_framework import serializers, views
 from rest_framework.response import Response
 
@@ -13,18 +17,47 @@ class MetricSerializer(serializers.HyperlinkedModelSerializer):
         fields = ["time", "value", "device", "attribute"]
 
 
-Dataframe: TypedDict = TypedDict("Response", {"time": str, "value": float})
+Dataframe: TypedDict = TypedDict("Dataframe", {"time": str, "value": float})
 
 
 class MetricView(views.APIView):
     def get(self, request, device_pk, _=None):
-        df = self.get_metrics_dataframe(self.get_device(device_pk))
+        df = self.get_metrics_dataframe(
+            self.filter_metrics(
+                self.get_device(device_pk),
+                self.unix_to_datetime(request.GET.get("from")),
+                self.unix_to_datetime(request.GET.get("to")),
+            )
+        )
         return Response(df)
 
     @staticmethod
-    def get_metrics_dataframe(device: Device) -> dict[str, dict[str, list[Dataframe]]]:
+    def unix_to_datetime(unix):
+        if unix:
+            return datetime.fromtimestamp(int(unix), tz=timezone.utc).strftime("%Y-%m-%d %H:%M:%S %z")
+
+    @staticmethod
+    def filter_metrics(device: Device, f, t) -> QuerySet[Metric]:
+        kw = {}
+        if f and t:
+            kw["time__range"] = (f, t)
+        elif f:
+            kw["time__gte"] = f
+        elif t:
+            kw["time__lte"] = t
+
+        return (
+            Metric.objects.filter(
+                device=device,
+                **kw,
+            )
+            .values("time", "value", "attribute")
+            .order_by("attribute")
+        )
+
+    @staticmethod
+    def get_metrics_dataframe(metrics: QuerySet[Metric]) -> dict[str, dict[str, list[Dataframe]]]:
         df: dict[str, dict[str, list[Dataframe]]] = {}  # type: ignore
-        metrics = Metric.objects.filter(device=device).values("time", "value", "attribute").order_by("attribute")
         for metric in metrics.iterator():
             attr = df.get(metric["attribute"])
             if attr:
