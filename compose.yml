@@ -36,6 +36,17 @@ services:
     depends_on:
       db:
         condition: service_healthy
+  nats:
+    image: nats:latest
+    ports:
+      - "4222:4222"
+    networks:
+      appnetworks:
+    restart: always
+    healthcheck:
+      test: ["CMD", "nats", "ping"]
+      timeout: 40s
+      interval: 5s
 
 volumes:
   db_data:

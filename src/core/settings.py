@@ -35,7 +35,8 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "grafita.apps.GrafitaConfig",
-    'rest_framework',
+    "rest_framework",
+    "mq.apps.MQConfig",
 ]
 
 MIDDLEWARE = [
