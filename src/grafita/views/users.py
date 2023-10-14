@@ -25,7 +25,7 @@ class UserDetail(DetailView):
 
     @staticmethod
     def post(request, pk: int):
-        user: User = User.objects.get(pk=pk)
+        user: User = User.objects.get(device_pk=pk)
         data = request.POST
         if data['password']:
             user.set_password(data['password'])
@@ -38,7 +38,7 @@ class UserDetail(DetailView):
 
 
 def update_user_groups(request, pk: int):
-    user: User = User.objects.get(pk=pk)
+    user: User = User.objects.get(device_pk=pk)
     data = request.POST
     groups_id: list[int] = data.getlist('groups')
     groups: list[Group] = Group.objects.filter(pk__in=groups_id)

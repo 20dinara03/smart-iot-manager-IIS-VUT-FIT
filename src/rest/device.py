@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
 
-from grafita.models import Device, DeviceGroup, DeviceType, KPI, Metric
+from grafita.models import Device, DeviceGroup, DeviceType, KPI
 from rest import ViewForAdmins
 
 
@@ -41,20 +41,6 @@ class DeviceSerializer(serializers.HyperlinkedModelSerializer):
 class DeviceViewSet(ViewForAdmins):
     queryset = Device.objects.all()
     serializer_class = DeviceSerializer
-
-
-class MetricSerializer(serializers.HyperlinkedModelSerializer):
-    device = serializers.PrimaryKeyRelatedField(queryset=Device.objects.all())
-
-
-    class Meta:
-        model = Metric
-        fields = ["device", "time", "value"]
-
-
-class MetricViewSet(ViewForAdmins):
-    queryset = Metric.objects.all()
-    serializer_class = MetricSerializer
 
 
 class KPISerializer(serializers.HyperlinkedModelSerializer):
