@@ -1,16 +1,25 @@
-"""
-ASGI config for core project.
-
-It exposes the ASGI callable as a module-level variable named ``application``.
-
-For more information on this file, see
-https://docs.djangoproject.com/en/4.2/howto/deployment/asgi/
-"""
-
 import os
+from contextlib import asynccontextmanager
 
 from django.core.asgi import get_asgi_application
+from starlette.applications import Starlette
+from starlette.routing import Mount
+
+from core.broker import broker
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "core.settings")
 
-application = get_asgi_application()
+
+@asynccontextmanager
+async def broker_lifespan(app):
+    await broker.start()
+    try:
+        yield
+    finally:
+        await broker.close()
+
+
+application = Starlette(
+    routes=(Mount("/", get_asgi_application()),),
+    lifespan=broker_lifespan,
+)
