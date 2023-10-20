@@ -1,7 +1,7 @@
 from django.urls import path
 
 from .views import (AuthenticationLoginView, AuthenticationRegisterView, ConcreteGroup, CreateDeviceView, Dashboard,
-                    DeviceDetail, DeviceList, GroupList, logout, update_user_groups, UserDetail, Users)
+                    DeviceDetail, DeviceList, GroupList, logout, update_user_groups, UserDetail, Users, DeleteDeviceView)
 
 urls = [
     path("dashboard/", Dashboard.as_view(), name="dashboard"),
@@ -13,6 +13,7 @@ urls = [
     path("devices/", DeviceList.as_view(), name="devices"),
     path("device/<int:pk>/", DeviceDetail.as_view(), name="device_detail"),
     path("create_device/", CreateDeviceView.as_view(), name="create_device"),
+    path('devices/<int:pk>/delete/', DeleteDeviceView.as_view(), name='device_delete'),
     # group
     path("groups/", GroupList.as_view(), name="groups"),
     path("group/<pk>", ConcreteGroup.as_view(), name="group"),

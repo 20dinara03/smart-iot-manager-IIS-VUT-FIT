@@ -28,7 +28,7 @@
             <div class="col-md-12">
                 <h3>Actions</h3>
                 <hr>
-                <form method="post" action="/devices/{{ object.id }}/delete">
+                <form method="post" action="/devices/{{ object.id }}/delete/">
                     {% csrf_token %}
                     <button type="submit" class="btn btn-danger">Delete Device</button>
                 </form>

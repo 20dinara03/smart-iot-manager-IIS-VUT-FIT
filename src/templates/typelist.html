@@ -1,0 +1,46 @@
+{% extends "_base.html" %}
+
+{% block title %} Device Types {% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-8">
+                <h2>Device Types</h2>
+                <table class="table">
+                    <tbody>
+                        {% for device_type in object_list %}
+                            <tr>
+                                <td>
+                                    <h4>{{ device_type.name }}</h4>
+                                    <p>{{ device_type.description }}</p>
+                                </td>
+                                <td>
+                                    <a href="{% url 'device_type_detail' device_type.pk %}" class="btn btn-info">Details</a>
+                                    <form method="post" action="{% url 'device_type_delete' device_type.pk %}">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="action" value="delete">
+                                        <button type="submit" class="btn btn-danger">Delete</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="2">No device types available.</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-4">
+                <h2>Create a New Device Type</h2>
+                <form method="post">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    {{ parameter_form.as_p }}
+                    <button type="submit" class="btn btn-primary">Create Device Type</button>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
