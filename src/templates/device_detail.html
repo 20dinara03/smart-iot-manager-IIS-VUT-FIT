@@ -23,11 +23,11 @@
                 <p><strong>Default KPI:</strong> {{ object.default_kpi }}</p>
             </div>
         </div>
-
         <div class="row">
             <div class="col-md-12">
                 <h3>Actions</h3>
                 <hr>
+                <a href="{% url 'edit_device' object.pk %}" class="btn btn-primary">Edit</a>
                 <form method="post" action="/devices/{{ object.id }}/delete/">
                     {% csrf_token %}
                     <button type="submit" class="btn btn-danger">Delete Device</button>

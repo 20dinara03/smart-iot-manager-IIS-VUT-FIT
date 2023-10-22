@@ -3,9 +3,27 @@ from django.core.exceptions import PermissionDenied
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.views import View
-from django.views.generic import CreateView, DetailView, ListView
-from grafita.views.types import DeviceTypeForm
-from grafita.models import Device, DeviceType
+from django.views.generic import CreateView, DetailView, ListView, UpdateView
+from grafita.models import Device
+
+device_type_data = [
+    {"name": "Mobile Phone", "description": "A handheld mobile communication device",
+     "attributes": "Screen Size, Operating System, Camera"},
+    {"name": "Laptop", "description": "A portable computer for work and entertainment",
+     "attributes": "Processor, RAM, Storage"},
+    {"name": "Smart TV", "description": "A television with smart features",
+     "attributes": "Screen Size, Resolution, Smart Features"},
+    {"name": "Digital Camera", "description": "A camera for capturing high-quality photos",
+     "attributes": "Megapixels, Lens Type, Zoom"},
+    {"name": "Gaming Console", "description": "A gaming device for entertainment",
+     "attributes": "Game Library, Controllers, Graphics"},
+    {"name": "Tablet", "description": "A portable touchscreen device",
+     "attributes": "Screen Size, Operating System, Battery Life"},
+    {"name": "Smartwatch", "description": "A wearable device for tracking and notifications",
+     "attributes": "Display, Health Sensors, Connectivity"},
+    {"name": "Drone", "description": "An unmanned aerial vehicle for various applications",
+     "attributes": "Flight Time, Camera, GPS"}
+]
 
 
 class DeviceForm(forms.ModelForm):
@@ -21,7 +39,6 @@ class DeviceForm(forms.ModelForm):
         fields = ['name', 'model', 'description', 'location', 'device_group', 'created_by', 'value_min',
                   'value_max', 'default_kpi']
         widgets = {
-            'device_type': forms.Select(attrs={'class': 'form-control'}),
             'device_group': forms.Select(attrs={'class': 'form-control'}),
             'default_kpi': forms.Select(attrs={'class': 'form-control'}),
         }
@@ -64,6 +81,13 @@ class DeleteDeviceView(View):
             raise PermissionDenied("User is not authenticated")
 
 
+class UpdateDeviceView(UpdateView):
+    model = Device
+    form_class = DeviceForm
+    template_name = 'edit_device.html'
+    success_url = '/devices'
+
+
 class CreateDeviceView(CreateView):
     model = Device
     form_class = DeviceForm
@@ -71,45 +95,38 @@ class CreateDeviceView(CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['device_types'] = DeviceType.objects.all()
+        context["device_type_data"] = device_type_data
         return context
-    def post(self, request, *args, **kwargs):
-        device_form = DeviceForm(request.POST)
-        device_type_form = DeviceTypeForm(request.POST)
 
-        if device_form.is_valid() and device_type_form.is_valid():
-            data = device_form.cleaned_data
-            new_device_type = device_form.cleaned_data.get('new_device_type')
+    def form_valid(self, form):
+        data = form.cleaned_data
+        # new_device_type = form.cleaned_data.get('new_device_type')
 
-            if new_device_type:
-                device_type = DeviceType(
-                    name=new_device_type,
-                    description=device_type_form.cleaned_data['description']
-                )
-                device_type.save()
-            else:
-                device_type = data['device_type']
+        # if new_device_type:
+        # device_type = DeviceType(
+        # name=new_device_type,
+        # description=data['description']
+        # )
+        # device_type.save()
+        # else:
+        # device_type = data['device_type']
 
-            device = Device(
-                name=data['name'],
-                model=data['model'],
-                description=data['description'],
-                location=data['location'],
-                device_type=device_type,
-                device_group=data['device_group'],
-                created_by=data['created_by'],
-                value_min=data['value_min'],
-                value_max=data['value_max'],
-                default_kpi=data['default_kpi']
-            )
-            device.save()
+        device = Device(
+            name=data['name'],
+            model=data['model'],
+            description=data['description'],
+            location=data['location'],
+            device_group=data['device_group'],
+            created_by=data['created_by'],
+            value_min=data['value_min'],
+            value_max=data['value_max'],
+            default_kpi=data['default_kpi'],
+        )
+        device.save()
 
-            return HttpResponseRedirect("/devices")
-        return render(request, 'create_device.html',
-                      {'device_form': device_form, 'device_type_form': device_type_form})
+        return HttpResponseRedirect("/devices")
 
     def get(self, request, *args, **kwargs):
-        device_form = DeviceForm
-        device_type_form = DeviceTypeForm()
+        device_form = DeviceForm()
         return render(request, 'create_device.html',
-                      {'device_form': device_form, 'device_type_form': device_type_form})
+                      {'device_form': device_form})

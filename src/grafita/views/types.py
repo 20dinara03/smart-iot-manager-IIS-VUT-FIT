@@ -1,11 +1,6 @@
 from django import forms
-from django.views import View
-from grafita.models import DeviceType
-from django.http import HttpResponseRedirect
-from django.views.generic import DetailView, ListView, CreateView
-from django.shortcuts import get_object_or_404
+from django.views.generic import DetailView
 from grafita.models import DeviceType, DeviceTypeParameter
-
 
 # class DeviceTypeForm(forms.ModelForm):
 # Define a CharField for attributes to handle the ArrayField
@@ -22,10 +17,15 @@ from grafita.models import DeviceType, DeviceTypeParameter
 # attributes = attributes.split(',')
 # return attributes
 
+
 class DeviceTypeForm(forms.ModelForm):
     class Meta:
         model = DeviceType
         fields = ['name', 'description']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['name'].required = False
 
 
 class DeviceTypeParameterForm(forms.ModelForm):
@@ -34,10 +34,10 @@ class DeviceTypeParameterForm(forms.ModelForm):
         fields = ['name', 'values']
 
 
-class DeviceTypeList(ListView):
-    model = DeviceType
-    paginate_by = 100
-    template_name = 'Typelist.html'
+#class DeviceTypeList(ListView):
+    #model = DeviceType
+    #paginate_by = 100
+    #template_name = 'typelist.html'
 
 
 class DeviceTypeDetail(DetailView):
@@ -45,30 +45,3 @@ class DeviceTypeDetail(DetailView):
     template_name = 'device_type_detail.html'
 
 
-class DeviceTypeCreate(CreateView):
-    model = DeviceType
-    form_class = DeviceTypeForm
-    template_name = 'create_device_type.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["parameter_form"] = DeviceTypeParameterForm()
-        return context
-
-    def form_valid(self, form):
-        self.object = form.save()
-
-        parameter_form = DeviceTypeParameterForm(self.request.POST)
-        if parameter_form.is_valid():
-            parameter = parameter_form.save(commit=False)
-            parameter.device_type = self.object
-            parameter.save()
-
-        return HttpResponseRedirect("/device_types")
-
-
-class DeviceTypeDelete(View):
-    def post(self, request, pk):
-        device_type = get_object_or_404(DeviceType, pk=pk)
-        device_type.delete()
-        return HttpResponseRedirect("/device_types")
