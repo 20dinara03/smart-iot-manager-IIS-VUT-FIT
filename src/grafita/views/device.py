@@ -6,25 +6,6 @@ from django.views import View
 from django.views.generic import CreateView, DetailView, ListView, UpdateView
 from grafita.models import Device
 
-device_type_data = [
-    {"name": "Mobile Phone", "description": "A handheld mobile communication device",
-     "attributes": "Screen Size, Operating System, Camera"},
-    {"name": "Laptop", "description": "A portable computer for work and entertainment",
-     "attributes": "Processor, RAM, Storage"},
-    {"name": "Smart TV", "description": "A television with smart features",
-     "attributes": "Screen Size, Resolution, Smart Features"},
-    {"name": "Digital Camera", "description": "A camera for capturing high-quality photos",
-     "attributes": "Megapixels, Lens Type, Zoom"},
-    {"name": "Gaming Console", "description": "A gaming device for entertainment",
-     "attributes": "Game Library, Controllers, Graphics"},
-    {"name": "Tablet", "description": "A portable touchscreen device",
-     "attributes": "Screen Size, Operating System, Battery Life"},
-    {"name": "Smartwatch", "description": "A wearable device for tracking and notifications",
-     "attributes": "Display, Health Sensors, Connectivity"},
-    {"name": "Drone", "description": "An unmanned aerial vehicle for various applications",
-     "attributes": "Flight Time, Camera, GPS"}
-]
-
 
 class DeviceForm(forms.ModelForm):
     template_name = "snippets/standard_form.html"
@@ -37,7 +18,7 @@ class DeviceForm(forms.ModelForm):
     class Meta:
         model = Device
         fields = ['name', 'model', 'description', 'location', 'device_group', 'created_by', 'value_min',
-                  'value_max', 'default_kpi']
+                  'value_max', 'default_kpi', 'device_type']
         widgets = {
             'device_group': forms.Select(attrs={'class': 'form-control'}),
             'default_kpi': forms.Select(attrs={'class': 'form-control'}),
@@ -95,7 +76,7 @@ class CreateDeviceView(CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["device_type_data"] = device_type_data
+        context["device_form"] = DeviceForm()
         return context
 
     def form_valid(self, form):
@@ -125,8 +106,3 @@ class CreateDeviceView(CreateView):
         device.save()
 
         return HttpResponseRedirect("/devices")
-
-    def get(self, request, *args, **kwargs):
-        device_form = DeviceForm()
-        return render(request, 'create_device.html',
-                      {'device_form': device_form})

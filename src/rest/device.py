@@ -19,7 +19,7 @@ class DeviceGroupViewSet(ViewForAdmins):
 class DeviceTypeSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = DeviceType
-        fields = ["name", "attributes"]
+        fields = ["name", "description", "attributes"]
 
 
 class DeviceTypeViewSet(ViewForAdmins):
