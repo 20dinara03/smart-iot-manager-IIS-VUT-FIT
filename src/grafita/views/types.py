@@ -1,10 +1,10 @@
 from django import forms
 from django.core.exceptions import PermissionDenied, ValidationError
-from django.forms import inlineformset_factory
+from django.forms import inlineformset_factory, modelformset_factory
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.views import View
-from django.views.generic import DetailView, ListView, CreateView
+from django.views.generic import DetailView, ListView, FormView, UpdateView
 from grafita.models import DeviceType, DeviceTypeParameter
 
 
@@ -19,24 +19,13 @@ class DeviceTypeParameterForm(forms.ModelForm):
         model = DeviceTypeParameter
         fields = ['name', 'min_value', 'max_value']
 
-    def clean_min_value(self):
-        min_value = self.cleaned_data['min_value']
-        if not isinstance(min_value, int):
-            raise ValidationError("Min value must be an integer.")
-        return min_value
-
-    def clean_max_value(self):
-        max_value = self.cleaned_data['max_value']
-        if not isinstance(max_value, int):
-            raise ValidationError("Max value must be an integer.")
-        return max_value
-
 
 DeviceTypeParameterFormSet = inlineformset_factory(
     DeviceType,
     DeviceTypeParameter,
     form=DeviceTypeParameterForm,
     extra=1,
+    can_delete=False,
 )
 
 
@@ -50,8 +39,37 @@ class DeleteDeviceTypeView(View):
             raise PermissionDenied("User is not authenticated")
 
 
-class DeviceTypeCreate(CreateView):
+class UpdateDeviceTypeView(UpdateView):
     model = DeviceType
+    form_class = DeviceTypeForm
+    template_name = 'edit_device_type.html'
+    success_url = '/types'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        ParameterFormSet = modelformset_factory(DeviceTypeParameter, form=DeviceTypeParameterForm, extra=0)
+        context['parameter_formset'] = ParameterFormSet(queryset=DeviceTypeParameter.objects.filter(device_type=self.object))
+        return context
+
+    def form_valid(self, form):
+        context = self.get_context_data()
+        parameter_formset = context['parameter_formset']
+
+        if parameter_formset.is_valid():
+            form.instance.save()
+
+            for parameter_form in parameter_formset:
+                if parameter_form.cleaned_data:
+                    parameter = parameter_form.save(commit=False)
+                    parameter.device_type = form.instance
+                    parameter.save()
+
+            return super().form_valid(form)
+        else:
+            return self.render_to_response(self.get_context_data(form=form))
+
+
+class DeviceTypeCreate(FormView):
     form_class = DeviceTypeForm
     template_name = 'device_type_create.html'
     success_url = '/types/'
@@ -69,20 +87,13 @@ class DeviceTypeCreate(CreateView):
         parameter_formset = context['parameter_formset']
 
         if parameter_formset.is_valid():
-            device_type = DeviceType(
-                name=form.cleaned_data['name'],
-                description=form.cleaned_data['description']
-            )
+            device_type = form.save(commit=False)
             device_type.save()
 
             for parameter_form in parameter_formset:
                 if parameter_form.cleaned_data:
-                    parameter = DeviceTypeParameter(
-                        device_type=device_type,
-                        name=parameter_form.cleaned_data['name'],
-                        min_value=parameter_form.cleaned_data['min_value'],
-                        max_value=parameter_form.cleaned_data['max_value']
-                    )
+                    parameter = parameter_form.save(commit=False)
+                    parameter.device_type = device_type
                     parameter.save()
 
             return super().form_valid(form)

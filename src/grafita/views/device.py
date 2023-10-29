@@ -80,16 +80,6 @@ class CreateDeviceView(CreateView):
 
     def form_valid(self, form):
         data = form.cleaned_data
-        # new_device_type = form.cleaned_data.get('new_device_type')
-
-        # if new_device_type:
-        # device_type = DeviceType(
-        # name=new_device_type,
-        # description=data['description']
-        # )
-        # device_type.save()
-        # else:
-        # device_type = data['device_type']
 
         device = Device(
             name=data['name'],
