@@ -17,8 +17,7 @@ class DeviceForm(forms.ModelForm):
 
     class Meta:
         model = Device
-        fields = ['name', 'model', 'description', 'location', 'device_group', 'created_by', 'value_min',
-                  'value_max', 'default_kpi', 'device_type']
+        fields = ['name', 'model', 'description', 'location', 'device_group', 'created_by', 'default_kpi', 'device_type']
         widgets = {
             'device_group': forms.Select(attrs={'class': 'form-control'}),
             'default_kpi': forms.Select(attrs={'class': 'form-control'}),
@@ -99,8 +98,6 @@ class CreateDeviceView(CreateView):
             location=data['location'],
             device_group=data['device_group'],
             created_by=data['created_by'],
-            value_min=data['value_min'],
-            value_max=data['value_max'],
             default_kpi=data['default_kpi'],
         )
         device.save()

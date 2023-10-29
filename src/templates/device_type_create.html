@@ -1,0 +1,74 @@
+{% extends "_base.html" %}
+
+{% block title %} Create New Device Type {% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-8">
+                <h2>Create New Device Type</h2>
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        {{ form.name.label_tag }}
+                        {{ form.name }}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.description.label_tag }}
+                        {{ form.description }}
+                    </div>
+                    <div class="parameters">
+                        <h3>Parameters</h3>
+                        <div id="parameter-formset">
+                            {{ parameter_formset.management_form }}
+                            {% for form in parameter_formset %}
+                                <div class="parameter">
+                                    {{ form.name.label_tag }}
+                                    {{ form.name }}
+                                    {{ form.min_value.label_tag }}
+                                    {{ form.min_value }}
+                                    {{ form.max_value.label_tag }}
+                                    {{ form.max_value }}
+                                    <button type="button" class="btn btn-danger remove-parameter" style="display: none">Delete</button>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <div class="parameter" style="display: none;">
+                            {{ parameter_formset.empty_form.as_table }}
+                            <button type="button" class="btn btn-danger remove-parameter">Delete</button>
+                        </div>
+                        <button type="button" id="add-parameter" class="btn btn-secondary">Add Parameter</button>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Create Device Type</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#add-parameter').click(function() {
+                const managementForm = $('#id_form-TOTAL_FORMS');
+                const formCount = parseInt(managementForm.val());
+                const newForm = $('#parameter-formset .parameter:first').clone(true);
+
+                newForm.find('input').each(function() {
+                    const newName = $(this).attr('name').replace(`form-${formCount - 1}`, `form-${formCount}`);
+                    const newID = $(this).attr('id').replace(`form-${formCount - 1}`, `form-${formCount}`);
+                    $(this).attr('name', newName).attr('id', newID).val('');
+                });
+
+                newForm.insertAfter('#parameter-formset .parameter:last');
+                managementForm.val(formCount + 1);
+                newForm.find('.remove-parameter').show();
+            });
+
+            $(document).on('click', '.remove-parameter', function() {
+                if ($('#parameter-formset .parameter:visible').length > 1) {
+                    $(this).closest('.parameter').remove();
+                }
+            });
+        });
+    </script>
+{% endblock %}

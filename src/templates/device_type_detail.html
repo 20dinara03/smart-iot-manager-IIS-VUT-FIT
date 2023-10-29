@@ -1,13 +1,21 @@
 {% extends "_base.html" %}
 
-{% block title %} Device Type Detail {% endblock %}
-
 {% block content %}
-    <div class="container">
-        <h2>Device Type Detail</h2>
-        <div>
-            <h4>Name: {{ object.name }}</h4>
-            <p>Description: {{ object.description }}</p>
-        </div>
-    </div>
+  <h1>Device Type Details: {{ object.name }}</h1>
+
+  <p><strong>Name:</strong> {{ object.name }}</p>
+  <p><strong>Description:</strong> {{ object.description }}</p>
+
+  <h2>Parameters:</h2>
+  <ul>
+    {% for parameter in object.devicetypeparameter_set.all %}
+      <li>
+        <strong>Parameter Name:</strong> {{ parameter.name }}<br>
+        <strong>Minimum Value:</strong> {{ parameter.min_value }}<br>
+        <strong>Maximum Value:</strong> {{ parameter.max_value }}<br>
+      </li>
+    {% endfor %}
+  </ul>
+
+  <a href="{% url 'types' %}">Back to Device Type List</a>
 {% endblock %}

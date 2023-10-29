@@ -1,8 +1,9 @@
 from django.urls import path
 
 from .views import (AuthenticationLoginView, AuthenticationRegisterView, ConcreteGroup, CreateDeviceView, Dashboard,
-                    DeviceDetail, DeviceList, GroupList, logout, update_user_groups, UserDetail, Users, DeleteDeviceView,
-                    UpdateDeviceView)
+                    DeviceDetail, DeviceList, GroupList, logout, update_user_groups, UserDetail, Users,
+                    DeleteDeviceView,
+                    UpdateDeviceView, DeviceTypeCreate, DeviceTypeList, DeviceTypeDetail, DeleteDeviceTypeView)
 
 urls = [
     path("dashboard/", Dashboard.as_view(), name="dashboard"),
@@ -24,4 +25,9 @@ urls = [
     path("users/", Users.as_view(), name="users"),
     path("user/<pk>", UserDetail.as_view(), name="user"),
     path("user/<pk>/groups", update_user_groups),
+    # types
+    path('device_type_create/', DeviceTypeCreate.as_view(), name='device_type_create'),
+    path('types/', DeviceTypeList.as_view(), name='types'),
+    path('device_type_detail/<int:pk>/', DeviceTypeDetail.as_view(), name='device_type_detail'),
+    path('device_type/<int:pk>/delete/', DeleteDeviceTypeView.as_view(), name='device_type_delete'),
 ]

@@ -33,13 +33,7 @@
                 </table>
             </div>
             <div class="col-4">
-                <h2>Create a New Device Type</h2>
-                <form method="post">
-                    {% csrf_token %}
-                    {{ form.as_p }}
-                    {{ parameter_form.as_p }}
-                    <button type="submit" class="btn btn-primary">Create Device Type</button>
-                </form>
+                <a href="{% url 'device_type_create' %}" class="btn btn-primary">Add Device Type</a>
             </div>
         </div>
     </div>

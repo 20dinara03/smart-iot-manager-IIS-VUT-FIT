@@ -1,21 +1,11 @@
 from django import forms
-from django.views.generic import DetailView
+from django.core.exceptions import PermissionDenied, ValidationError
+from django.forms import inlineformset_factory
+from django.http import HttpResponseRedirect
+from django.shortcuts import get_object_or_404
+from django.views import View
+from django.views.generic import DetailView, ListView, CreateView
 from grafita.models import DeviceType, DeviceTypeParameter
-
-# class DeviceTypeForm(forms.ModelForm):
-# Define a CharField for attributes to handle the ArrayField
-# attributes = forms.CharField(required=False, widget=forms.TextInput(attrs={'class': 'form-control'}))
-
-# class Meta:
-# model = DeviceType
-# fields = ['name', 'description', 'attributes']
-
-# def clean_attributes(self):
-# Convert the input value to a list of strings
-# attributes = self.cleaned_data['attributes']
-# if attributes:
-# attributes = attributes.split(',')
-# return attributes
 
 
 class DeviceTypeForm(forms.ModelForm):
@@ -23,25 +13,89 @@ class DeviceTypeForm(forms.ModelForm):
         model = DeviceType
         fields = ['name', 'description']
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['name'].required = False
-
 
 class DeviceTypeParameterForm(forms.ModelForm):
     class Meta:
         model = DeviceTypeParameter
-        fields = ['name', 'values']
+        fields = ['name', 'min_value', 'max_value']
+
+    def clean_min_value(self):
+        min_value = self.cleaned_data['min_value']
+        if not isinstance(min_value, int):
+            raise ValidationError("Min value must be an integer.")
+        return min_value
+
+    def clean_max_value(self):
+        max_value = self.cleaned_data['max_value']
+        if not isinstance(max_value, int):
+            raise ValidationError("Max value must be an integer.")
+        return max_value
 
 
-#class DeviceTypeList(ListView):
-    #model = DeviceType
-    #paginate_by = 100
-    #template_name = 'typelist.html'
+DeviceTypeParameterFormSet = inlineformset_factory(
+    DeviceType,
+    DeviceTypeParameter,
+    form=DeviceTypeParameterForm,
+    extra=1,
+)
+
+
+class DeleteDeviceTypeView(View):
+    def post(self, request, pk):
+        if request.user.is_authenticated:
+            device_type = get_object_or_404(DeviceType, pk=pk)
+            device_type.delete()
+            return HttpResponseRedirect("/types")
+        else:
+            raise PermissionDenied("User is not authenticated")
+
+
+class DeviceTypeCreate(CreateView):
+    model = DeviceType
+    form_class = DeviceTypeForm
+    template_name = 'device_type_create.html'
+    success_url = '/types/'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.request.POST:
+            context['parameter_formset'] = DeviceTypeParameterFormSet(self.request.POST)
+        else:
+            context['parameter_formset'] = DeviceTypeParameterFormSet()
+        return context
+
+    def form_valid(self, form):
+        context = self.get_context_data()
+        parameter_formset = context['parameter_formset']
+
+        if parameter_formset.is_valid():
+            device_type = DeviceType(
+                name=form.cleaned_data['name'],
+                description=form.cleaned_data['description']
+            )
+            device_type.save()
+
+            for parameter_form in parameter_formset:
+                if parameter_form.cleaned_data:
+                    parameter = DeviceTypeParameter(
+                        device_type=device_type,
+                        name=parameter_form.cleaned_data['name'],
+                        min_value=parameter_form.cleaned_data['min_value'],
+                        max_value=parameter_form.cleaned_data['max_value']
+                    )
+                    parameter.save()
+
+            return super().form_valid(form)
+        else:
+            return self.render_to_response(self.get_context_data(form=form))
+
+
+class DeviceTypeList(ListView):
+    model = DeviceType
+    paginate_by = 100
+    template_name = 'types.html'
 
 
 class DeviceTypeDetail(DetailView):
     model = DeviceType
     template_name = 'device_type_detail.html'
-
-

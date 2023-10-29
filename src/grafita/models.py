@@ -22,12 +22,10 @@ class DeviceType(models.Model):
 
 
 class DeviceTypeParameter(models.Model):
-    device_type = models.ForeignKey(DeviceType, on_delete=models.CASCADE)
     name = models.CharField(max_length=100)
-    values = ArrayField(models.FloatField(), blank=True, null=True)
-
-    def __str__(self):
-        return self.name
+    min_value = models.IntegerField()
+    max_value = models.IntegerField()
+    device_type = models.ForeignKey(DeviceType, on_delete=models.CASCADE)
 
 
 class Device(models.Model):
