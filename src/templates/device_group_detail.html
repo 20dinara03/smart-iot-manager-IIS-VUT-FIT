@@ -1,0 +1,24 @@
+{% extends "_base.html" %}
+
+{% block title %} Device Group Detail {% endblock %}
+
+{% block content %}
+    <h1>{{ group.name }} Details</h1>
+    <p>{{ group.description }}</p>
+    <p>Admin: {{ group.admin.username }}</p>
+
+    <h2>Devices in this Group</h2>
+    <ul>
+        {% for device in group.devices.all %}
+            <li>{{ device.name }}</li>
+        {% endfor %}
+    </ul>
+
+    <a href="{% url 'update_device_group' group.pk %}" class="btn btn-warning">Edit</a>
+    <form method="post" action="{% url 'delete_device_group' group.pk %}" class="d-inline">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="delete">
+        <button type="submit" class="btn btn-danger">Delete</button>
+    </form>
+    <a href="{% url 'device_groups' %}" class="btn btn-secondary mt-3">Back to Device Groups</a>
+{% endblock %}

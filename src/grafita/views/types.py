@@ -47,8 +47,10 @@ class UpdateDeviceTypeView(UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        ParameterFormSet = modelformset_factory(DeviceTypeParameter, form=DeviceTypeParameterForm, extra=0)
-        context['parameter_formset'] = ParameterFormSet(queryset=DeviceTypeParameter.objects.filter(device_type=self.object))
+        if self.request.POST:
+            context['parameter_formset'] = DeviceTypeParameterFormSet(self.request.POST, instance=self.object)
+        else:
+            context['parameter_formset'] = DeviceTypeParameterFormSet(instance=self.object)
         return context
 
     def form_valid(self, form):
@@ -56,15 +58,12 @@ class UpdateDeviceTypeView(UpdateView):
         parameter_formset = context['parameter_formset']
 
         if parameter_formset.is_valid():
-            form.instance.save()
+            self.object = form.save()  # Save the DeviceType instance
 
-            for parameter_form in parameter_formset:
-                if parameter_form.cleaned_data:
-                    parameter = parameter_form.save(commit=False)
-                    parameter.device_type = form.instance
-                    parameter.save()
+            parameter_formset.instance = self.object
+            parameter_formset.save()  # Save the parameters
 
-            return super().form_valid(form)
+            return HttpResponseRedirect(self.get_success_url())
         else:
             return self.render_to_response(self.get_context_data(form=form))
 

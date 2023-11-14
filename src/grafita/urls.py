@@ -4,7 +4,8 @@ from .views import (AuthenticationLoginView, AuthenticationRegisterView, Concret
                     DeviceDetail, DeviceList, GroupList, logout, update_user_groups, UserDetail, Users,
                     DeleteDeviceView,
                     UpdateDeviceView, DeviceTypeCreate, DeviceTypeList, DeviceTypeDetail, DeleteDeviceTypeView,
-                    UpdateDeviceTypeView)
+                    UpdateDeviceTypeView, DeviceGroupListCreateView, CreateDeviceGroupView, DeviceGroupDetailView,
+                    DeleteDeviceGroupView, UpdateDeviceGroupView)
 
 urls = [
     path("dashboard/", Dashboard.as_view(), name="dashboard"),
@@ -32,4 +33,10 @@ urls = [
     path('device_type_detail/<int:pk>/', DeviceTypeDetail.as_view(), name='device_type_detail'),
     path('device_type/<int:pk>/delete/', DeleteDeviceTypeView.as_view(), name='device_type_delete'),
     path('device_type/<int:pk>/edit/', UpdateDeviceTypeView.as_view(), name='edit_device_type'),
+    # device_groups
+    path('device_groups/', DeviceGroupListCreateView.as_view(), name='device_groups'),
+    path('create_device_group/', CreateDeviceGroupView.as_view(), name='create_device_group'),
+    path('device_groups/<int:pk>/', DeviceGroupDetailView.as_view(), name='device_group_detail'),
+    path('device_groups/<int:pk>/update/', UpdateDeviceGroupView.as_view(), name='update_device_group'),
+    path('device_groups/<int:pk>/delete/', DeleteDeviceGroupView.as_view(), name='delete_device_group'),
 ]

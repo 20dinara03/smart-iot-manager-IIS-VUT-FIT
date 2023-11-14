@@ -1,0 +1,25 @@
+{% extends "_base.html" %}
+
+{% block title %} Device Groups {% endblock %}
+
+{% block content %}
+    <div class="d-flex justify-content-between align-items-center">
+        <h1>Device Groups</h1>
+        <a href="{% url 'create_device_group' %}" class="btn btn-primary">Create New Group</a>
+    </div>
+
+    <ul>
+        {% for group in groups %}
+            <li>
+                {{ group.name }} - {{ group.description }} - Admin: {{ group.admin.username }}
+                <a href="{% url 'device_group_detail' group.pk %}" class="btn btn-info">Details</a>
+                <a href="{% url 'update_device_group' group.pk %}" class="btn btn-warning">Edit</a>
+                <form method="post" action="{% url 'delete_device_group' group.pk %}" class="d-inline">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="delete">
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </li>
+        {% endfor %}
+    </ul>
+{% endblock %}

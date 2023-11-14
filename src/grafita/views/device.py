@@ -89,6 +89,7 @@ class CreateDeviceView(CreateView):
             device_group=data['device_group'],
             created_by=data['created_by'],
             default_kpi=data['default_kpi'],
+            device_type=data['device_type'],
         )
         device.save()
 
