@@ -6,6 +6,7 @@ from .views import (AuthenticationLoginView, AuthenticationRegisterView, Concret
                     UpdateDeviceView, DeviceTypeCreate, DeviceTypeList, DeviceTypeDetail, DeleteDeviceTypeView,
                     UpdateDeviceTypeView, DeviceGroupListCreateView, CreateDeviceGroupView, DeviceGroupDetailView,
                     DeleteDeviceGroupView, UpdateDeviceGroupView)
+from .views.device import share_device
 
 urls = [
     path("dashboard/", Dashboard.as_view(), name="dashboard"),
@@ -39,4 +40,6 @@ urls = [
     path('device_groups/<int:pk>/', DeviceGroupDetailView.as_view(), name='device_group_detail'),
     path('device_groups/<int:pk>/update/', UpdateDeviceGroupView.as_view(), name='update_device_group'),
     path('device_groups/<int:pk>/delete/', DeleteDeviceGroupView.as_view(), name='delete_device_group'),
+    # share device
+    path('share_device/<int:pk>/', share_device, name='share_device')
 ]

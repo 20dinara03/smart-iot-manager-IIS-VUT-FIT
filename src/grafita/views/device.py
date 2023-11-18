@@ -1,10 +1,21 @@
 from django import forms
+from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.mixins import UserPassesTestMixin
+from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
-from django.http import HttpResponseRedirect
-from django.shortcuts import get_object_or_404, render
+from django.db.models import Q
+from django.http import HttpResponseForbidden, HttpResponseRedirect
+from django.shortcuts import get_object_or_404
 from django.views import View
+from django.views.decorators.http import require_POST
 from django.views.generic import CreateView, DetailView, ListView, UpdateView
+
 from grafita.models import Device
+
+
+class AuthenticatedUserMixin(UserPassesTestMixin):
+    def test_func(self):
+        return self.request.user.is_authenticated
 
 
 class DeviceForm(forms.ModelForm):
@@ -15,24 +26,42 @@ class DeviceForm(forms.ModelForm):
         required=False
     )
 
+
     class Meta:
         model = Device
-        fields = ['name', 'model', 'description', 'location', 'device_group', 'created_by', 'default_kpi', 'device_type']
+        fields = ['name', 'model', 'description', 'location', 'device_group', 'default_kpi', 'device_type']
         widgets = {
             'device_group': forms.Select(attrs={'class': 'form-control'}),
             'default_kpi': forms.Select(attrs={'class': 'form-control'}),
         }
 
 
-class DeviceList(ListView):
+class DeviceList(AuthenticatedUserMixin, ListView):
     model = Device
     paginate_by = 100
+    ordering = ['-id']
     template_name = 'devices.html'
 
+    def get_queryset(self):
+        return Device.objects.filter(Q(created_by=self.request.user) | Q(can_view=self.request.user))
 
-class DeviceDetail(DetailView):
+
+class DeviceDetail(AuthenticatedUserMixin, DetailView):
     model = Device
     template_name = 'device_detail.html'
+
+    def test_func(self):
+        return super().test_func() and (
+                self.get_object().created_by == self.request.user
+                or
+                self.get_object().can_view.filter(pk=self.request.user.pk).exists()
+        )
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['users'] = User.objects.all()
+        context['can_share'] = self.get_object().created_by == self.request.user
+        return context
 
     def dispatch(self, request, *args, **kwargs):
         if request.method == "POST":
@@ -51,7 +80,7 @@ class DeviceDetail(DetailView):
         return HttpResponseRedirect("/devices")
 
 
-class DeleteDeviceView(View):
+class DeleteDeviceView(AuthenticatedUserMixin, View):
     def post(self, request, pk):
         if request.user.is_authenticated:
             device = get_object_or_404(Device, pk=pk)
@@ -68,7 +97,7 @@ class UpdateDeviceView(UpdateView):
     success_url = '/devices'
 
 
-class CreateDeviceView(CreateView):
+class CreateDeviceView(AuthenticatedUserMixin, CreateView):
     model = Device
     form_class = DeviceForm
     template_name = 'create_device.html'
@@ -79,6 +108,9 @@ class CreateDeviceView(CreateView):
         return context
 
     def form_valid(self, form):
+        if not self.request.user.is_authenticated:
+            return HttpResponseForbidden()
+
         data = form.cleaned_data
 
         device = Device(
@@ -87,10 +119,23 @@ class CreateDeviceView(CreateView):
             description=data['description'],
             location=data['location'],
             device_group=data['device_group'],
-            created_by=data['created_by'],
+            created_by=self.request.user,
             default_kpi=data['default_kpi'],
             device_type=data['device_type'],
         )
         device.save()
 
         return HttpResponseRedirect("/devices")
+
+
+@login_required
+@require_POST
+def share_device(request, pk):
+    device = get_object_or_404(Device, pk=pk)
+    used_id = request.POST.get('recipient')
+    if used_id is None:
+        return HttpResponseForbidden()
+
+    device.can_view.add(User.objects.get(pk=used_id))
+    device.save()
+    return HttpResponseRedirect("/devices")

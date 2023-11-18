@@ -47,6 +47,7 @@ class Device(models.Model):
     device_group = models.ForeignKey('DeviceGroup', on_delete=models.SET_NULL, null=True, blank=True, related_name='devices_of_group')
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
     default_kpi = models.ForeignKey("KPI", on_delete=models.SET_NULL, null=True, blank=True)
+    can_view = models.ManyToManyField(User, related_name='can_view_devices')
 
     def __str__(self):
         return self.name
