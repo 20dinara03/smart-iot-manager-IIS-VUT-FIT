@@ -135,3 +135,6 @@ LOGGING = {
         "level": "DEBUG" if DEBUG else "INFO"
     },
 }
+
+LOGIN_URL = '/login/'
+LOGIN_REDIRECT_URL = '/devices/'

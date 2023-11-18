@@ -3,22 +3,101 @@
 {% block title %} Device Group Detail {% endblock %}
 
 {% block content %}
-    <h1>{{ group.name }} Details</h1>
-    <p>{{ group.description }}</p>
-    <p>Admin: {{ group.admin.username }}</p>
+    <a href="{% url 'device_groups' %}" class="btn btn-sm` mt-3"> << Back to Device Groups</a>
 
-    <h2>Devices in this Group</h2>
-    <ul>
-        {% for device in group.devices.all %}
-            <li>{{ device.name }}</li>
-        {% endfor %}
-    </ul>
+    <div class="container">
+        <div class="row">
+            <div class="col-5">
+                <h2>Devices in this Group</h2>
+                <ul class="list-group list-group-flush">
+                    {% for device in group.devices.all %}
+                        <li class="list-group-item">
+                            <blockquote class="blockquote mb-0">
+                                <p>{{ device.name }}</p>
+                                <footer class="blockquote-footer small" style="font-size: .675em">create by <cite
+                                        title="Source Title"> {{ device.created_by }} </cite></footer>
+                            </blockquote>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="col-2"></div>
+            <div class="col-5">
 
-    <a href="{% url 'update_device_group' group.pk %}" class="btn btn-warning">Edit</a>
-    <form method="post" action="{% url 'delete_device_group' group.pk %}" class="d-inline">
-        {% csrf_token %}
-        <input type="hidden" name="action" value="delete">
-        <button type="submit" class="btn btn-danger">Delete</button>
-    </form>
-    <a href="{% url 'device_groups' %}" class="btn btn-secondary mt-3">Back to Device Groups</a>
+                <div class="container">
+                    <div class="card">
+                        <div class="card-header">
+                            group {{ group.id }} details
+                        </div>
+                        <div class="card-body">
+                            <h5 class="card-title">{{ group.name }}</h5>
+                            <p class="card-text">{{ group.description }}</p>
+                            <div class="row">
+                                <div class="d-flex justify-content-between">
+                                    <div class="col d-flex justify-content-start">
+                                        <a href="{% url 'update_device_group' group.pk %}"
+                                           class="btn btn-primary">Edit</a>
+                                        <!-- Button trigger modal -->
+                                        {% if can_share %}
+                                            <div class="mx-2"></div>
+                                            <button type="button" class="btn btn-outline-info" data-bs-toggle="modal"
+                                                    data-bs-target="#staticBackdrop">
+                                                Share
+                                            </button>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col d-flex justify-content-end">
+                                        <form method="post" action="{% url 'delete_device_group' group.pk %}"
+                                              class="d-inline">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="action" value="delete">
+                                            <button type="submit" class="btn btn-danger">Delete</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer text-body-secondary">
+                            Admin: {{ group.admin.username }}
+                        </div>
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if can_share %}
+        <!-- Modal -->
+        <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+             aria-labelledby="staticBackdropLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="staticBackdropLabel">Share group {{ group.id }}</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form method="post" action={% url 'share_group' group.id %}>
+                        <div class="modal-body">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <label for="recipient" class="form-label"> Recipient </label>
+                                <select name="recipient" id="recipient" class="form-select">
+                                    {% for user in users %}
+                                        <option value="{{ user.id }}">{{ user.username }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary">Share!</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
 {% endblock %}

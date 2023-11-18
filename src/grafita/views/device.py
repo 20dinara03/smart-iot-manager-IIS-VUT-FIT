@@ -1,6 +1,5 @@
 from django import forms
-from django.contrib.auth.decorators import login_required, permission_required
-from django.contrib.auth.mixins import UserPassesTestMixin
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.db.models import Q
@@ -10,12 +9,8 @@ from django.views import View
 from django.views.decorators.http import require_POST
 from django.views.generic import CreateView, DetailView, ListView, UpdateView
 
-from grafita.models import Device
-
-
-class AuthenticatedUserMixin(UserPassesTestMixin):
-    def test_func(self):
-        return self.request.user.is_authenticated
+from grafita.models import Device, DevicesGroup
+from grafita.views.mixins import AuthenticatedUserMixin
 
 
 class DeviceForm(forms.ModelForm):
@@ -23,7 +18,7 @@ class DeviceForm(forms.ModelForm):
 
     class Meta:
         model = Device
-        fields = ['name', 'model', 'description', 'location', 'device_group', 'default_kpi', 'device_type']
+        fields = ['name', 'model', 'description', 'location', 'device_group', 'device_type']
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control'}),
             'model': forms.TextInput(attrs={'class': 'form-control'}),
@@ -31,8 +26,11 @@ class DeviceForm(forms.ModelForm):
             'location': forms.TextInput(attrs={'class': 'form-control'}),
             'device_type': forms.TextInput(attrs={'class': 'form-control'}),
             'device_group': forms.Select(attrs={'class': 'form-control'}),
-            'default_kpi': forms.Select(attrs={'class': 'form-control'}),
         }
+
+    def __init__(self, *args, request, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['device_group'].queryset = DevicesGroup.objects.filter(admin=request.user)
 
 
 class DeviceList(AuthenticatedUserMixin, ListView):
@@ -95,15 +93,40 @@ class UpdateDeviceView(UpdateView):
     template_name = 'edit_device.html'
     success_url = '/devices'
 
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['request'] = self.request
+        return kwargs
+
+    def form_valid(self, form):
+        device = self.get_object()
+        if form.cleaned_data['device_group'] != device.device_group:
+            if device.device_group is not None:
+                device.device_group.devices.remove(device)
+                device.device_group.save()
+            if form.cleaned_data['device_group'] is not None:
+                form.cleaned_data['device_group'].devices.add(device)
+                form.cleaned_data['device_group'].save()
+
+        super().form_valid(form)
+
+        return HttpResponseRedirect("/devices")
+
 
 class CreateDeviceView(AuthenticatedUserMixin, CreateView):
     model = Device
     form_class = DeviceForm
     template_name = 'create_device.html'
 
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['request'] = self.request
+        return kwargs
+
     def get_context_data(self, **kwargs):
+        kwargs['form'] = None
         context = super().get_context_data(**kwargs)
-        context["device_form"] = DeviceForm()
+        context["device_form"] = DeviceForm(request=self.request)
         return context
 
     def form_valid(self, form):
@@ -119,10 +142,13 @@ class CreateDeviceView(AuthenticatedUserMixin, CreateView):
             location=data['location'],
             device_group=data['device_group'],
             created_by=self.request.user,
-            default_kpi=data['default_kpi'],
             device_type=data['device_type'],
         )
         device.save()
+
+        if device.device_group is not None:
+            device.device_group.devices.add(device)
+            device.device_group.save()
 
         return HttpResponseRedirect("/devices")
 

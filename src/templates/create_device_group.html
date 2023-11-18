@@ -4,10 +4,40 @@
 
 {% block content %}
     <h1>Create Device Group</h1>
-    <form method="post" action="{% url 'create_device_group' %}">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" class="btn btn-primary">Create Device Group</button>
-    </form>
-    <a href="{% url 'device_groups' %}" class="btn btn-secondary mt-3">Back to Device Groups</a>
+    <div class="container">
+        <div class="row">
+            <div class="col-6">
+                <form method="post" action="{% url 'create_device_group' %}">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+
+                    <div class="row">
+                        <div class="col">
+                            <button type="submit" class="btn btn-primary">Create Device Group</button>
+                            <a href="{% url 'device_groups' %}" class="btn btn-secondary">Back to Device Groups</a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block jquery %}
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet">
+
+{% endblock %}
+
+
+{% block script %}
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            // Initialize Select2 on the select element
+            $('#id_devices').select2();
+        });
+    </script>
 {% endblock %}

@@ -1,17 +1,17 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
-from grafita.models import Device, DeviceGroup, DeviceType, KPI, DeviceTypeParameter
+from grafita.models import Device, DevicesGroup, DeviceType, KPI, DeviceTypeParameter
 from rest import ViewForAdmins
 
 
 class DeviceGroupSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
-        model = DeviceGroup
+        model = DevicesGroup
         fields = ["name"]
 
 
 class DeviceGroupViewSet(ViewForAdmins):
-    queryset = DeviceGroup.objects.all()
+    queryset = DevicesGroup.objects.all()
     serializer_class = DeviceGroupSerializer
 
 
