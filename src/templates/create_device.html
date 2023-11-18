@@ -3,7 +3,7 @@
 {% block title %} Create New Device {% endblock %}
 
 {% block content %}
-    <div style="padding-bottom: 50px"></div>
+    <div style="padding-bottom: 10px"></div>
     <div class="card">
         <div class="card-body">
             <h2 class="card-title">Create a New Device</h2>
@@ -15,7 +15,7 @@
                     {% for field in device_form %}
                         <div class="mb-3 row">
                             <label class="form-label col-sm-2">{{ field.label_tag }}</label>
-                            <div class=" col-sm-6">
+                            <div class=" col-sm-4">
                                 {{ field }}
                                 <div class="form-text">
                                     {{ field.help_text }}
@@ -23,7 +23,11 @@
                             </div>
                         </div>
                     {% endfor %}
-                    <button type="submit" class="btn btn-primary">Save Device</button>
+                    <div class="row">
+                        <div class="col-6">
+                            <button type="submit" class="btn btn-primary">Save Device</button>
+                        </div>
+                    </div>
                 </form>
             </div>
         </div>

@@ -21,16 +21,15 @@ class AuthenticatedUserMixin(UserPassesTestMixin):
 class DeviceForm(forms.ModelForm):
     template_name = "snippets/standard_form.html"
 
-    description = forms.CharField(
-        widget=forms.Textarea(attrs={'rows': 3}),
-        required=False
-    )
-
-
     class Meta:
         model = Device
         fields = ['name', 'model', 'description', 'location', 'device_group', 'default_kpi', 'device_type']
         widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control'}),
+            'model': forms.TextInput(attrs={'class': 'form-control'}),
+            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 2}),
+            'location': forms.TextInput(attrs={'class': 'form-control'}),
+            'device_type': forms.TextInput(attrs={'class': 'form-control'}),
             'device_group': forms.Select(attrs={'class': 'form-control'}),
             'default_kpi': forms.Select(attrs={'class': 'form-control'}),
         }
