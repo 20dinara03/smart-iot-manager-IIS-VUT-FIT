@@ -1,62 +1,121 @@
 from django import forms
-from grafita.models import DeviceType
+from django.core.exceptions import PermissionDenied
+from django.forms import inlineformset_factory
 from django.http import HttpResponseRedirect
-from django.views.generic import DetailView, ListView
 from django.shortcuts import get_object_or_404
+from django.views import View
+from django.views.generic import DetailView, ListView, FormView, UpdateView
+from grafita.models import DeviceType, DeviceTypeParameter
 
 
 class DeviceTypeForm(forms.ModelForm):
-    # Define a CharField for attributes to handle the ArrayField
-    attributes = forms.CharField(required=False, widget=forms.TextInput(attrs={'class': 'form-control'}))
-
     class Meta:
         model = DeviceType
-        fields = ['name', 'description', 'attributes']
+        fields = ['name', 'description']
 
-    def clean_attributes(self):
-        # Convert the input value to a list of strings
-        attributes = self.cleaned_data['attributes']
-        if attributes:
-            attributes = attributes.split(',')
-        return attributes
+
+class DeviceTypeParameterForm(forms.ModelForm):
+    class Meta:
+        model = DeviceTypeParameter
+        fields = ['name', 'min_value', 'max_value']
+
+
+DeviceTypeParameterFormSet = inlineformset_factory(
+    DeviceType,
+    DeviceTypeParameter,
+    form=DeviceTypeParameterForm,
+    can_delete=False,
+)
+
+
+class DeleteDeviceTypeView(View):
+    def post(self, request, pk):
+        if request.user.is_authenticated:
+            device_type = get_object_or_404(DeviceType, pk=pk)
+            device_type.delete()
+            return HttpResponseRedirect("/types")
+        else:
+            raise PermissionDenied("User is not authenticated")
+
+
+class UpdateDeviceTypeView(UpdateView):
+    model = DeviceType
+    form_class = DeviceTypeForm
+    template_name = 'edit_device_type.html'
+    success_url = '/types'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.request.POST:
+            context['parameter_formset'] = DeviceTypeParameterFormSet(self.request.POST, instance=self.object)
+        else:
+            context['parameter_formset'] = DeviceTypeParameterFormSet(instance=self.object,
+                                                                      queryset=DeviceTypeParameter.objects.filter(
+                                                                          device_type=self.object))
+        return context
+
+    def form_valid(self, form):
+        context = self.get_context_data()
+        parameter_formset = context['parameter_formset']
+
+        if parameter_formset.is_valid():
+            self.object = form.save()  # Save the DeviceType instance
+
+            # Save the parameters
+            instances = parameter_formset.save(commit=False)
+
+            # Handle deleted parameters
+            for instance in parameter_formset.deleted_objects:
+                instance.delete()
+
+            # Set the DeviceType for the remaining instances
+            for instance in instances:
+                instance.device_type = self.object
+                instance.save()
+
+            return HttpResponseRedirect(self.get_success_url())
+        else:
+            return self.render_to_response(self.get_context_data(form=form))
+
+
+class DeviceTypeCreate(FormView):
+    form_class = DeviceTypeForm
+    template_name = 'device_type_create.html'
+    success_url = '/types/'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.request.POST:
+            context['parameter_formset'] = DeviceTypeParameterFormSet(self.request.POST)
+        else:
+            context['parameter_formset'] = DeviceTypeParameterFormSet(queryset=DeviceTypeParameter.objects.none())
+        return context
+
+    def form_valid(self, form):
+        context = self.get_context_data()
+        parameter_formset = context['parameter_formset']
+
+        if parameter_formset.is_valid():
+            device_type = form.save(commit=False)
+            device_type.save()
+
+            for parameter_form in parameter_formset:
+                if parameter_form.cleaned_data and not all(parameter_form.cleaned_data.values()):
+                    parameter = parameter_form.save(commit=False)
+                    parameter.device_type = device_type
+                    parameter.save()
+
+            return super().form_valid(form)
+        else:
+            return self.render_to_response(self.get_context_data(form=form))
 
 
 class DeviceTypeList(ListView):
     model = DeviceType
     paginate_by = 100
-    form_class = DeviceTypeForm
-    template_name = 'Typelist.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["form"] = self.form_class()
-        return context
-
-    def post(self, request):
-        form = self.form_class(request.POST)
-        if form.is_valid():
-            data = form.cleaned_data
-            # Create a list from the attributes field input
-            attributes = data.pop('attributes', [])
-            device_type = DeviceType(**data)
-            device_type.attributes = attributes
-            device_type.save()
-
-        return HttpResponseRedirect("/create_device")
+    template_name = 'types.html'
 
 
 class DeviceTypeDetail(DetailView):
     model = DeviceType
-
-    def dispatch(self, request, *args, **kwargs):
-        if request.method == "POST":
-            action = request.POST.get("action")
-            if action == "delete":
-                return self.delete(request, *args, **kwargs)
-        return super().dispatch(request, *args, **kwargs)
-
-    @staticmethod
-    def delete(_, device_type_id: int):
-        device_type = get_object_or_404(DeviceType, id=device_type_id)
-        device_type.delete()
-        return HttpResponseRedirect("/create_device")
+    template_name = 'device_type_detail.html'

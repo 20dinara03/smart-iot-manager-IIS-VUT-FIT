@@ -1,0 +1,46 @@
+{% extends "_base.html" %}
+
+{% block title %} Update Device Group {% endblock %}
+
+{% block content %}
+    <h1>Update Device Group</h1>
+    <div class="container">
+        <div class="row">
+            <div class="col-6">
+                <form method="post" action="{% url 'update_device_group' group.pk %}">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col">
+                            {{ form.as_p }}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <button type="submit" class="btn btn-primary">Update Device Group</button>
+                            <a href="{% url 'device_groups' %}" class="btn btn-secondary">Back to Device Groups</a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block jquery %}
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet">
+
+{% endblock %}
+
+
+{% block script %}
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            // Initialize Select2 on the select element
+            $('#id_devices').select2();
+        });
+    </script>
+{% endblock %}

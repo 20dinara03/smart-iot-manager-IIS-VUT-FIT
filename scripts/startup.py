@@ -52,12 +52,10 @@ def add_users():
 
 def add_device_types():
     sets = [
-        {
-            "name": "thermometer",
-            "attributes": [
-                "temperature"
-            ]
-        }
+        {"name": "Mobile Phone", "description": "A handheld mobile communication device",
+         "attributes": ["Screen Size", "Operating System", "Camera"]},
+        {"name": "Laptop", "description": "A portable computer for work and entertainment",
+         "attributes": ["Processor", "RAM", "Storage"]}
     ]
     for s in sets:
         response = requests.post(f"http://{server}/device_types/", json=s, auth=(username, password))

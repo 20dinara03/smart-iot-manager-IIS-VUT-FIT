@@ -7,15 +7,31 @@ from timescale.db.models.models import TimescaleDateTimeField, TimescaleModel
 from grafita.kpi import AnyKpi, kpi_registry
 
 
-class DeviceGroup(models.Model):
-    name = models.CharField(max_length=100)
-    description = models.TextField(blank=True, null=True)
+class DevicesGroup(models.Model):
+    name = models.CharField(max_length=255)
+    description = models.TextField(blank=True)
+    admin = models.ForeignKey(User, on_delete=models.CASCADE, related_name='admin_groups')
+    devices = models.ManyToManyField('Device', related_name='device_groups')
+    shared_with = models.ManyToManyField(User, related_name='shared_groups')
+
+    def __str__(self):
+        return self.name
 
 
 class DeviceType(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField(null=True, blank=True)
     attributes = ArrayField(models.CharField(max_length=100), null=True, blank=True)
+
+    def __str__(self):
+        return self.name
+
+
+class DeviceTypeParameter(models.Model):
+    name = models.CharField(max_length=100)
+    min_value = models.IntegerField()
+    max_value = models.IntegerField()
+    device_type = models.ForeignKey(DeviceType, on_delete=models.CASCADE)
 
 
 class Device(models.Model):
@@ -24,11 +40,12 @@ class Device(models.Model):
     description = models.TextField(null=True, blank=True)
     location = models.CharField(max_length=100, null=True, blank=True)
     device_type = models.ForeignKey(DeviceType, on_delete=models.CASCADE, null=True, blank=True)
-    device_group = models.ForeignKey(DeviceGroup, on_delete=models.CASCADE, null=True, blank=True)
+    device_group = models.ForeignKey(DevicesGroup, on_delete=models.SET_NULL, null=True, blank=True, related_name='devices_of_group')
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
-    value_min = models.FloatField(null=True, blank=True)
-    value_max = models.FloatField(null=True, blank=True)
-    default_kpi = models.ForeignKey("KPI", on_delete=models.SET_NULL, null=True, blank=True)
+    can_view = models.ManyToManyField(User, related_name='can_view_devices')
+
+    def __str__(self):
+        return self.name
 
     def validate_kpi(self, time_from, time_to) -> bool:
         """ Should:

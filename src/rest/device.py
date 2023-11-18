@@ -1,25 +1,24 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
-
-from grafita.models import Device, DeviceGroup, DeviceType, KPI
+from grafita.models import Device, DevicesGroup, DeviceType, KPI, DeviceTypeParameter
 from rest import ViewForAdmins
 
 
 class DeviceGroupSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
-        model = DeviceGroup
+        model = DevicesGroup
         fields = ["name"]
 
 
 class DeviceGroupViewSet(ViewForAdmins):
-    queryset = DeviceGroup.objects.all()
+    queryset = DevicesGroup.objects.all()
     serializer_class = DeviceGroupSerializer
 
 
 class DeviceTypeSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = DeviceType
-        fields = ["name", "attributes"]
+        fields = ["name", "description"]
 
 
 class DeviceTypeViewSet(ViewForAdmins):
@@ -32,10 +31,9 @@ class DeviceSerializer(serializers.HyperlinkedModelSerializer):
     default_kpi = serializers.PrimaryKeyRelatedField(queryset=KPI.objects.all())
     created_by = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
 
-
     class Meta:
         model = Device
-        fields = ["name", "model", "location", "device_type", "value_min", "value_max", "default_kpi", "created_by"]
+        fields = ["name", "model", "location", "device_type", "default_kpi", "created_by"]
 
 
 class DeviceViewSet(ViewForAdmins):
@@ -52,3 +50,9 @@ class KPISerializer(serializers.HyperlinkedModelSerializer):
 class KPIViewSet(ViewForAdmins):
     queryset = KPI.objects.all()
     serializer_class = KPISerializer
+
+
+class DeviceTypeParameterSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DeviceTypeParameter
+        fields = ['name', 'min_value', 'max_value']

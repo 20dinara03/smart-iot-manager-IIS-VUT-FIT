@@ -1,0 +1,88 @@
+{% extends "_base.html" %}
+
+{% block title %} Create Device Type {% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-8">
+                <h2>Create Device Type</h2>
+                <form method="post" id="device-type-form">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <h3>Parameters</h3>
+                    <div id="parameter-formset">
+                        {{ parameter_formset.management_form }}
+                        {% if parameter_formset.forms %}
+                            {% for parameter_form in parameter_formset.forms %}
+                                <div class="parameter">
+                                    {{ parameter_form.id }}
+                                    {{ parameter_form.name.label_tag }}
+                                    {{ parameter_form.name }}
+                                    {{ parameter_form.min_value.label_tag }}
+                                    {{ parameter_form.min_value }}
+                                    {{ parameter_form.max_value.label_tag }}
+                                    {{ parameter_form.max_value }}
+                                    <button type="button" class="btn btn-danger remove-parameter">Delete</button>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="parameter" style="display: none;">
+                                {{ parameter_formset.empty_form.as_table }}
+                                <button type="button" class="btn btn-danger remove-parameter">Delete</button>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <button type="button" id="add-parameter" class="btn btn-secondary">Add Parameter</button>
+                    <button type="submit" class="btn btn-primary">Create Device Type</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('.parameter:has(input[value=""])').hide();
+
+            $('#add-parameter').click(function () {
+                const managementForm = $('#id_form-TOTAL_FORMS');
+                const formCount = parseInt(managementForm.val());
+                const newForm = $('#parameter-formset .parameter:first').clone(true);
+
+                newForm.find('input').each(function () {
+                    const newName = $(this).attr('name').replace(`form-${formCount - 1}`, `form-${formCount}`);
+                    const newID = $(this).attr('id').replace(`form-${formCount - 1}`, `form-${formCount}`);
+                    $(this).attr('name', newName).attr('id', newID).val('');
+                });
+
+                newForm.insertAfter('#parameter-formset .parameter:last');
+                managementForm.val(formCount + 1);
+                newForm.find('.remove-parameter').show();
+            });
+
+            $(document).on('click', '.remove-parameter', function () {
+                const managementForm = $('#id_form-TOTAL_FORMS');
+                const formCount = parseInt(managementForm.val());
+
+                if ($('#parameter-formset .parameter:visible').length > 1) {
+                    $(this).closest('.parameter').remove();
+
+                    // Update form indices
+                    $('#parameter-formset .parameter').each(function (index, form) {
+                        updateFormIndex($(form), index);
+                    });
+
+                    managementForm.val(formCount - 1);
+                }
+            });
+
+            function updateFormIndex(form, newIndex) {
+                form.find('input').each(function () {
+                    const newName = $(this).attr('name').replace(/\d+/g, newIndex);
+                    const newID = $(this).attr('id').replace(/\d+/g, newIndex);
+                    $(this).attr('name', newName).attr('id', newID);
+                });
+            }
+        });
+    </script>
+{% endblock %}

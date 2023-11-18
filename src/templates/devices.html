@@ -9,32 +9,34 @@
                 <h1>Your Devices</h1>
                 <table class="table">
                     <tbody>
-                        {% for device in object_list %}
-                            <tr>
-                                <td>
-                                    <div class="d-flex align-items-center">
-                                        <div class="device-info">
-                                            <h4>{{ device.name }}</h4>
-                                            <p>{{ device.device_type }}</p>
-                                            <p>{{ device.description }}</p>
-                                        </div>
-                                        <!-- Place for the device chart goes here -->
+                    {% for device in object_list %}
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="device-info">
+                                        <h4>{{ device.name }}</h4>
+                                        <p>{{ device.device_type }}</p>
+                                        <p>{{ device.description }}</p>
                                     </div>
-                                </td>
-                                <td>
-                                    <a href="{% url 'device_detail' device.pk %}" class="btn btn-info">Details</a>
+                                    <!-- Place for the device chart goes here -->
+                                </div>
+                            </td>
+                            <td>
+                                <div class="container d-flex justify-content-end">
+                                    <a href="{% url 'device_detail' device.pk %}" class="btn btn-primary" style="margin-right: 15px">Details</a>
                                     <form method="post" action="{% url 'device_delete' device.pk %}">
                                         {% csrf_token %}
                                         <input type="hidden" name="action" value="delete">
                                         <button type="submit" class="btn btn-danger">Delete</button>
                                     </form>
-                                </td>
-                            </tr>
+                                </div>
+                            </td>
+                        </tr>
                         {% empty %}
-                            <tr>
-                                <td colspan="2">No devices available.</td>
-                            </tr>
-                        {% endfor %}
+                        <tr>
+                            <td colspan="2">No devices available.</td>
+                        </tr>
+                    {% endfor %}
                     </tbody>
                 </table>
             </div>

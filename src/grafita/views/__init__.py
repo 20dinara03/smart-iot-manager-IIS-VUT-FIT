@@ -2,6 +2,7 @@ from .dashboard import Dashboard
 from .auth import AuthenticationLoginView, AuthenticationRegisterView, logout
 from .groups import GroupList, ConcreteGroup
 from .users import Users, UserDetail, update_user_groups
-
-from .types import DeviceTypeList, DeviceTypeDetail
-from .device import DeviceList, DeviceDetail, CreateDeviceView
+from .device import DeviceList, DeviceDetail, CreateDeviceView, DeleteDeviceView, UpdateDeviceView
+from .types import DeviceTypeList, DeviceTypeCreate, DeviceTypeDetail, DeleteDeviceTypeView, UpdateDeviceTypeView
+from .device_groups import (DeviceGroupListCreateView, CreateDeviceGroupView, DeleteDeviceGroupView,
+                            DeviceGroupDetailView, UpdateDeviceGroupView)
