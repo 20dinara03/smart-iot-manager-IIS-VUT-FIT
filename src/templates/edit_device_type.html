@@ -26,6 +26,7 @@
                             </div>
                         {% endfor %}
                     </div>
+                    <!-- Оставьте пустую форму для клонирования -->
                     <div class="parameter" style="display: none;">
                         {{ parameter_formset.empty_form.as_table }}
                         <button type="button" class="btn btn-danger remove-parameter">Delete</button>
@@ -36,16 +37,15 @@
             </div>
         </div>
     </div>
-
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-        $(document).ready(function() {
-            $('#add-parameter').click(function() {
+        $(document).ready(function () {
+            $('#add-parameter').click(function () {
                 const managementForm = $('#id_form-TOTAL_FORMS');
                 const formCount = parseInt(managementForm.val());
                 const newForm = $('#parameter-formset .parameter:first').clone(true);
 
-                newForm.find('input').each(function() {
+                newForm.find('input').each(function () {
                     const newName = $(this).attr('name').replace(`form-${formCount - 1}`, `form-${formCount}`);
                     const newID = $(this).attr('id').replace(`form-${formCount - 1}`, `form-${formCount}`);
                     $(this).attr('name', newName).attr('id', newID).val('');
@@ -56,11 +56,30 @@
                 newForm.find('.remove-parameter').show();
             });
 
-            $(document).on('click', '.remove-parameter', function() {
+            $(document).on('click', '.remove-parameter', function () {
+                const managementForm = $('#id_form-TOTAL_FORMS');
+                const formCount = parseInt(managementForm.val());
+
                 if ($('#parameter-formset .parameter:visible').length > 1) {
                     $(this).closest('.parameter').remove();
+
+                    // Update form indices
+                    $('#parameter-formset .parameter').each(function (index, form) {
+                        updateFormIndex($(form), index);
+                    });
+
+                    managementForm.val(formCount - 1);
                 }
             });
+
+            function updateFormIndex(form, newIndex) {
+                form.find('input').each(function () {
+                    const newName = $(this).attr('name').replace(/\d+/g, newIndex);
+                    const newID = $(this).attr('id').replace(/\d+/g, newIndex);
+                    $(this).attr('name', newName).attr('id', newID);
+                });
+            }
         });
     </script>
+
 {% endblock %}

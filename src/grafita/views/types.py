@@ -1,6 +1,6 @@
 from django import forms
-from django.core.exceptions import PermissionDenied, ValidationError
-from django.forms import inlineformset_factory, modelformset_factory
+from django.core.exceptions import PermissionDenied
+from django.forms import inlineformset_factory
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.views import View
@@ -24,7 +24,6 @@ DeviceTypeParameterFormSet = inlineformset_factory(
     DeviceType,
     DeviceTypeParameter,
     form=DeviceTypeParameterForm,
-    extra=1,
     can_delete=False,
 )
 
@@ -50,7 +49,9 @@ class UpdateDeviceTypeView(UpdateView):
         if self.request.POST:
             context['parameter_formset'] = DeviceTypeParameterFormSet(self.request.POST, instance=self.object)
         else:
-            context['parameter_formset'] = DeviceTypeParameterFormSet(instance=self.object)
+            context['parameter_formset'] = DeviceTypeParameterFormSet(instance=self.object,
+                                                                      queryset=DeviceTypeParameter.objects.filter(
+                                                                          device_type=self.object))
         return context
 
     def form_valid(self, form):
@@ -60,8 +61,17 @@ class UpdateDeviceTypeView(UpdateView):
         if parameter_formset.is_valid():
             self.object = form.save()  # Save the DeviceType instance
 
-            parameter_formset.instance = self.object
-            parameter_formset.save()  # Save the parameters
+            # Save the parameters
+            instances = parameter_formset.save(commit=False)
+
+            # Handle deleted parameters
+            for instance in parameter_formset.deleted_objects:
+                instance.delete()
+
+            # Set the DeviceType for the remaining instances
+            for instance in instances:
+                instance.device_type = self.object
+                instance.save()
 
             return HttpResponseRedirect(self.get_success_url())
         else:
@@ -78,7 +88,7 @@ class DeviceTypeCreate(FormView):
         if self.request.POST:
             context['parameter_formset'] = DeviceTypeParameterFormSet(self.request.POST)
         else:
-            context['parameter_formset'] = DeviceTypeParameterFormSet()
+            context['parameter_formset'] = DeviceTypeParameterFormSet(queryset=DeviceTypeParameter.objects.none())
         return context
 
     def form_valid(self, form):
@@ -90,7 +100,7 @@ class DeviceTypeCreate(FormView):
             device_type.save()
 
             for parameter_form in parameter_formset:
-                if parameter_form.cleaned_data:
+                if parameter_form.cleaned_data and not all(parameter_form.cleaned_data.values()):
                     parameter = parameter_form.save(commit=False)
                     parameter.device_type = device_type
                     parameter.save()
