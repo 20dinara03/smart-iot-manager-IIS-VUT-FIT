@@ -1,10 +1,7 @@
 from django.contrib.auth.models import User
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
-from django.db.models import QuerySet
 from timescale.db.models.models import TimescaleDateTimeField, TimescaleModel
-
-from grafita.kpi import AnyKpi, kpi_registry
 
 
 class DevicesGroup(models.Model):
@@ -13,6 +10,7 @@ class DevicesGroup(models.Model):
     admin = models.ForeignKey(User, on_delete=models.CASCADE, related_name='admin_groups')
     devices = models.ManyToManyField('Device', related_name='device_groups')
     shared_with = models.ManyToManyField(User, related_name='shared_groups')
+    kpis = models.ManyToManyField('KPI', related_name='kpi_groups')
 
     def __str__(self):
         return self.name
@@ -29,8 +27,8 @@ class DeviceType(models.Model):
 
 class DeviceTypeParameter(models.Model):
     name = models.CharField(max_length=100)
-    min_value = models.IntegerField()
-    max_value = models.IntegerField()
+    min_value = models.IntegerField(default=0)
+    max_value = models.IntegerField(default=100)
     device_type = models.ForeignKey(DeviceType, on_delete=models.CASCADE)
 
 
@@ -40,7 +38,8 @@ class Device(models.Model):
     description = models.TextField(null=True, blank=True)
     location = models.CharField(max_length=100, null=True, blank=True)
     device_type = models.ForeignKey(DeviceType, on_delete=models.CASCADE, null=True, blank=True)
-    device_group = models.ForeignKey(DevicesGroup, on_delete=models.SET_NULL, null=True, blank=True, related_name='devices_of_group')
+    device_group = models.ForeignKey(DevicesGroup, on_delete=models.SET_NULL, null=True, blank=True,
+                                     related_name='devices_of_group')
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
     can_view = models.ManyToManyField(User, related_name='can_view_devices')
 
@@ -63,13 +62,12 @@ class Device(models.Model):
             - create dataframe with annotation if a device is valid by KPI
 
         """
-        metrics: QuerySet[Metric] = Metric.objects.filter(device=self.id).filter(time__range=(time_from, time_to))
-        kpi: AnyKpi = kpi_registry[self.default_kpi.name]
-        return kpi.validate(self.default_kpi.value, metrics)
+        pass
 
 
 class KPI(models.Model):
-    name = models.CharField(max_length=100)
+    class_name = models.CharField(max_length=100)
+    parameter_name = models.CharField(max_length=100)
     value = ArrayField(models.DecimalField(max_digits=6, decimal_places=2), size=5, null=True, blank=True)
 
 
