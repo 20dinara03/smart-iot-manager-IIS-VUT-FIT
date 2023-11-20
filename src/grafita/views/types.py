@@ -12,12 +12,21 @@ class DeviceTypeForm(forms.ModelForm):
     class Meta:
         model = DeviceType
         fields = ['name', 'description']
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control'}),
+            'description': forms.Textarea(attrs={'class': 'form-control'}),
+        }
 
 
 class DeviceTypeParameterForm(forms.ModelForm):
     class Meta:
         model = DeviceTypeParameter
         fields = ['name', 'min_value', 'max_value']
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control'}),
+            'min_value': forms.NumberInput(attrs={'class': 'form-control'}),
+            'max_value': forms.NumberInput(attrs={'class': 'form-control'}),
+        }
 
 
 DeviceTypeParameterFormSet = inlineformset_factory(
@@ -25,6 +34,7 @@ DeviceTypeParameterFormSet = inlineformset_factory(
     DeviceTypeParameter,
     form=DeviceTypeParameterForm,
     can_delete=False,
+    extra=1,
 )
 
 
@@ -41,7 +51,7 @@ class DeleteDeviceTypeView(View):
 class UpdateDeviceTypeView(UpdateView):
     model = DeviceType
     form_class = DeviceTypeForm
-    template_name = 'edit_device_type.html'
+    template_name = 'device_type_create.html'
     success_url = '/types'
 
     def get_context_data(self, **kwargs):
@@ -49,6 +59,7 @@ class UpdateDeviceTypeView(UpdateView):
         if self.request.POST:
             context['parameter_formset'] = DeviceTypeParameterFormSet(self.request.POST, instance=self.object)
         else:
+            context['action'] = 'Update'
             context['parameter_formset'] = DeviceTypeParameterFormSet(instance=self.object,
                                                                       queryset=DeviceTypeParameter.objects.filter(
                                                                           device_type=self.object))
@@ -58,7 +69,7 @@ class UpdateDeviceTypeView(UpdateView):
         context = self.get_context_data()
         parameter_formset = context['parameter_formset']
 
-        if parameter_formset.is_valid():
+        if parameter_formset and parameter_formset.is_valid():
             self.object = form.save()  # Save the DeviceType instance
 
             # Save the parameters
@@ -84,18 +95,20 @@ class DeviceTypeCreate(FormView):
     success_url = '/types/'
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
         if self.request.POST:
-            context['parameter_formset'] = DeviceTypeParameterFormSet(self.request.POST)
+            kwargs['parameter_formset'] = DeviceTypeParameterFormSet(self.request.POST)
         else:
-            context['parameter_formset'] = DeviceTypeParameterFormSet(queryset=DeviceTypeParameter.objects.none())
+            kwargs['action'] = 'Create'
+            kwargs['parameter_formset'] = DeviceTypeParameterFormSet()
+
+        context = super().get_context_data(**kwargs)
         return context
 
     def form_valid(self, form):
         context = self.get_context_data()
         parameter_formset = context['parameter_formset']
 
-        if parameter_formset.is_valid():
+        if parameter_formset and parameter_formset.is_valid():
             device_type = form.save(commit=False)
             device_type.save()
 
