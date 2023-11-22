@@ -10,7 +10,6 @@ class DevicesGroup(models.Model):
     admin = models.ForeignKey(User, on_delete=models.CASCADE, related_name='admin_groups')
     devices = models.ManyToManyField('Device', related_name='device_groups')
     shared_with = models.ManyToManyField(User, related_name='shared_groups')
-    kpis = models.ManyToManyField('KPI', related_name='kpi_groups')
 
     def __str__(self):
         return self.name
@@ -19,7 +18,6 @@ class DevicesGroup(models.Model):
 class DeviceType(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField(null=True, blank=True)
-    attributes = ArrayField(models.CharField(max_length=100), null=True, blank=True)
 
     def __str__(self):
         return self.name
@@ -67,8 +65,9 @@ class Device(models.Model):
 
 class KPI(models.Model):
     class_name = models.CharField(max_length=100)
-    parameter_name = models.CharField(max_length=100)
-    value = ArrayField(models.DecimalField(max_digits=6, decimal_places=2), size=5, null=True, blank=True)
+    parameter = models.ForeignKey(DeviceTypeParameter, on_delete=models.CASCADE)
+    value = models.DecimalField(max_digits=6, decimal_places=2)
+    device_group = models.ForeignKey(DevicesGroup, on_delete=models.CASCADE, null=True, blank=True,)
 
 
 class Metric(TimescaleModel):

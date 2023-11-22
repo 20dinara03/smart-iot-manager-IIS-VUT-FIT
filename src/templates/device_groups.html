@@ -8,18 +8,69 @@
         <a href="{% url 'create_device_group' %}" class="btn btn-primary">Create New Group</a>
     </div>
 
-    <ul>
-        {% for group in groups %}
-            <li>
-                {{ group.name }} - {{ group.description }} - Admin: {{ group.admin.username }}
-                <a href="{% url 'device_group_detail' group.pk %}" class="btn btn-info">Details</a>
-                <a href="{% url 'update_device_group' group.pk %}" class="btn btn-warning">Edit</a>
-                <form method="post" action="{% url 'delete_device_group' group.pk %}" class="d-inline">
-                    {% csrf_token %}
-                    <input type="hidden" name="action" value="delete">
-                    <button type="submit" class="btn btn-danger">Delete</button>
-                </form>
-            </li>
-        {% endfor %}
-    </ul>
+    <div class="container">
+        <div class="row">
+            <div class="col-6">
+                <ul class="list-group">
+                    {% for group in groups %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center"
+                            id="li-{{ group.pk }}"
+                            onclick="change_li_active({{ forloop.counter0 }})">
+                            {{ group.name }}
+                        </li>
+                        {% empty %}
+                        <div class="row">
+                            <p class="text-center">No groups are there.</p>
+                        </div>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% for group in groups %}
+                <div class="col" hidden="hidden" id="group-info-{{ forloop.counter0 }}">
+                    <div id="card" class="card">
+                        <h5 id="card-name" class="card-header">{{ group.name }}</h5>
+                        <div class="card-body">
+                            <div style="padding-bottom: 20px">
+                                {{ group.description }}
+                            </div>
+                            <div class="d-flex justify-content-start">
+                                <div style="padding-right: 20px"></div>
+                                <form method="post" action="{% url 'delete_device_group' group.pk %}" class="d-inline">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="delete">
+                                    <button type="submit" class="btn btn-danger">Delete</button>
+                                </form>
+                                <a href="{% url 'device_group_detail' group.pk %}" class="btn btn-primary">Details</a>
+                                <a href="{% url 'update_device_group' group.pk %}" class="btn btn-outline-primary">Edit</a>
+                            </div>
+                        </div>
+                        <div class="card-footer text-body-secondary">
+                            Admin: {{ group.admin.username }}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block script %}
+    <script>
+        let active_index = 0;
+
+        function change_li_active(id) {
+            console.log(id, active_index);
+            let lis = document.getElementsByClassName('list-group-item');
+
+            lis[active_index].classList.remove('active');
+            let card = document.getElementById('group-info-' + active_index);
+            card.hidden = true;
+
+            lis[id].classList.add('active');
+            card = document.getElementById('group-info-' + id);
+            card.hidden = false;
+
+            active_index = id;
+        }
+    </script>
 {% endblock %}

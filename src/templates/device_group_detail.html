@@ -2,6 +2,10 @@
 
 {% block title %} Device Group Detail {% endblock %}
 
+{% block jquery %}
+    {% include 'grafs/_graf.html' %}
+{% endblock %}
+
 {% block content %}
     <a href="{% url 'device_groups' %}" class="btn btn-sm` mt-3"> << Back to Device Groups</a>
 
@@ -61,9 +65,16 @@
                             Admin: {{ group.admin.username }}
                         </div>
                     </div>
-
-
                 </div>
+            </div>
+        </div>
+        <div class="row">
+            <div id="chart-device-id-1" class="chart-cont"></div>
+
+            <div id="chart-device-id-2" class="chart-cont"></div>
+
+            <div class="col-6">
+                {% include 'grafs/standard.html' with params=parameters %}
             </div>
         </div>
     </div>

@@ -51,7 +51,7 @@ class Lower(AbstractKPI):
         return query_set.filter(value__lt=value).count() == 0
 
 
-class Between(AbstractKPI):
-    @staticmethod
-    def validate(value: tuple[Numeric, Numeric], query_set: QuerySet["Metric"]) -> bool:
-        return query_set.filter(value__range=value).count() == 0
+# class Delta(AbstractKPI):
+#     @staticmethod
+#     def validate(value: tuple[Numeric], query_set: QuerySet["Metric"]) -> bool:
+#         return query_set.filter(value__range=value).count() == 0

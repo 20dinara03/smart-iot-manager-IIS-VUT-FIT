@@ -9,7 +9,7 @@ from django.views import View
 from django.views.decorators.http import require_POST
 from django.views.generic import CreateView, DetailView, ListView, UpdateView
 
-from grafita.models import Device, DevicesGroup
+from grafita.models import Device, DevicesGroup, DeviceType
 from grafita.views.mixins import AuthenticatedUserMixin
 
 
@@ -24,13 +24,14 @@ class DeviceForm(forms.ModelForm):
             'model': forms.TextInput(attrs={'class': 'form-control'}),
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 2}),
             'location': forms.TextInput(attrs={'class': 'form-control'}),
-            'device_type': forms.TextInput(attrs={'class': 'form-control'}),
+            'device_type': forms.Select(attrs={'class': 'form-control'}),
             'device_group': forms.Select(attrs={'class': 'form-control'}),
         }
 
     def __init__(self, *args, request, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['device_group'].queryset = DevicesGroup.objects.filter(admin=request.user)
+        self.fields['device_type'].queryset = DeviceType.objects.all()
 
 
 class DeviceList(AuthenticatedUserMixin, ListView):

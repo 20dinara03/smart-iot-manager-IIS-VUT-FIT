@@ -5,9 +5,9 @@
 {% block content %}
     <h1>Create Device Group</h1>
     <div class="container">
-        <div class="row">
-            <div class="col-6">
-                <form method="post" action="{% url 'create_device_group' %}">
+        <form method="post" action="{% url 'create_device_group' %}">
+            <div class="row">
+                <div class="col-4">
                     {% csrf_token %}
                     {{ form.as_p }}
 
@@ -17,9 +17,61 @@
                             <a href="{% url 'device_groups' %}" class="btn btn-secondary">Back to Device Groups</a>
                         </div>
                     </div>
-                </form>
+                </div>
+                <div class="col-1"></div>
+                <div class="col-6">
+                    <h3>KPIs for this group</h3>
+                    {% if formset.errors %}
+                        <div class="alert alert-danger" role="alert">
+                            <strong>Oops!</strong> Something went wrong.
+
+                            {% for error in formset.errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    <div id="parameter-formset" class="container">
+                        {% if formset.forms %}
+                            {{ formset.management_form }}
+                            {% for kpi_form in formset %}
+                                <div class="row">
+                                    {{ kpi_form.id }}
+                                    <div class="col-4"
+                                         style="display: flex; justify-content: flex-end; flex-direction: column;">
+                                        {{ kpi_form.class_name.label_tag }}
+                                        {{ kpi_form.class_name }}
+
+                                    </div>
+                                    <div class="col-4">
+                                        {{ kpi_form.parameter.label_tag }}
+                                        {{ kpi_form.parameter }}
+                                    </div>
+                                    <div class="col-2">
+                                        {{ kpi_form.value.label_tag }}
+                                        {{ kpi_form.value }}
+                                    </div>
+                                    <div class="col-2" style="display: flex; align-items: flex-end">
+                                        <button type="button" class="btn btn-danger remove-parameter">Delete
+                                        </button>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="parameter" style="display: none;">
+                                {{ formset.empty_form.as_table }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="row" style="margin-top: 20px">
+                        <div class="col">
+                            <button type="button" id="add-parameter" class="btn btn-secondary">Add Parameter
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
+        </form>
     </div>
 {% endblock %}
 
@@ -35,9 +87,105 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
 
     <script>
+        let template_form = $("#parameter-formset .row:last-child");
+        let kpiSet = $("#id_kpi_set-TOTAL_FORMS");
+        console.log(kpiSet);
+
+        function update_total_forms_after_delete() {
+            kpiSet.val(parseInt(kpiSet.val()) - 1);
+        }
+
+        let idDevices = [];
+
+        const url = "/api/v1/device_parameters/";
+        const query_key = "devices";
+
+        function fetch_params() {
+            let query = idDevices.join(",");
+            let params = {};
+            params[query_key] = query;
+            $.ajax({
+                url: url,
+                data: params,
+                success: function (data) {
+                    let $parameter_name = $(".parameter_name");
+                    $parameter_name.empty();
+                    for (let i = 0; i < data.length; i++) {
+                        let option = new Option(data[i].name, data[i].pk, true, true);
+                        $parameter_name.append(option);
+                    }
+                }
+            });
+
+        }
+
         $(document).ready(function () {
-            // Initialize Select2 on the select element
-            $('#id_devices').select2();
+            let $idDevices = $('#id_devices');
+            $idDevices.select2()
+
+            $idDevices.on('select2:selecting', function (e) {
+                // TODO: update the list of devices
+                idDevices.push(e.params.args.data.id);
+                fetch_params();
+            });
+
+            $idDevices.on('select2:unselecting', function (e) {
+                index = idDevices.indexOf(e.params.args.data.id);
+                if (index > -1) {
+                    idDevices.splice(index, 1);
+                }
+                fetch_params();
+            });
+
+            // set removing of forms
+            $(".remove-parameter").click(function () {
+                // remove the form
+                $(this).parent().parent().remove();
+                // update the total number of forms
+                update_total_forms_after_delete();
+            });
+
+            // click on button #add-parameter
+            $("#add-parameter").click(function () {
+                // get the last form
+                // get the total number of forms
+                let total = kpiSet.val();
+                console.log("total");
+                console.log(total);
+                console.log(kpiSet);
+                // create a new form
+                let new_form = template_form.clone();
+                // update the id and name attributes
+
+                new_form.find("input").each(function () {
+                    let name = $(this).attr("name").replace(`-0-`, `-${total}-`);
+                    $(this).attr({"name": name, "id": `id_${name}`}).val("");
+                });
+
+                new_form.find("select").each(function () {
+                    let name = $(this).attr("name").replace(`-0-`, `-${total}-`);
+                    let id = `id_${name}`;
+                    $(this).attr({"name": name, "id": id}).val("");
+                });
+
+                new_form.find("label").each(function () {
+                    let new_for = $(this).attr("for").replace(`-0-`, `-${total}-`);
+                    $(this).attr("for", new_for);
+                });
+
+                kpiSet.val(parseInt(total) + 1);
+
+                $("#parameter-formset").append(new_form);
+
+                new_form.show();
+
+                // add a click event to the new form
+                new_form.find(".remove-parameter").click(function () {
+                    // remove the form
+                    new_form.remove();
+                    update_total_forms_after_delete()
+                });
+            });
         });
     </script>
 {% endblock %}

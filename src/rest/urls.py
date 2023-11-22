@@ -2,6 +2,7 @@ from django.urls import include, path
 from rest_framework import routers
 
 from .device import DeviceGroupViewSet, DeviceTypeViewSet, DeviceViewSet, KPIViewSet
+from .device_type import DeviceTypeParameterViewSet
 from .group import GroupViewSet
 from .metric import MetricView
 from .user import UserViewSet
@@ -14,6 +15,7 @@ router.register(r'groups', GroupViewSet, basename='group')
 router.register(r'devices', DeviceViewSet, basename='device')
 router.register(r'device_groups', DeviceGroupViewSet, basename='device_group')
 router.register(r'device_types', DeviceTypeViewSet, basename='device_type')
+router.register(r'device_parameters', DeviceTypeParameterViewSet, basename='device_parameters')
 router.register(r'kpis', KPIViewSet, basename='kpi')
 
 rest_urls = [
