@@ -36,7 +36,7 @@ class DeviceForm(forms.ModelForm):
 
     def clean_name(self):
         name = self.cleaned_data.get('name')
-        if not name.isalnum():
+        if name and not name.isalnum():
             raise ValidationError('The name must contain only letters and numbers.')
         print("clean_name\n")
         print(self.errors)

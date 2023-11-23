@@ -26,6 +26,11 @@
                                 {{ field }}
                                 <div class="form-text">
                                     {{ field.help_text }}
+                                    {% if field.errors %}
+                                        {% for error in field.errors %}
+                                            <p style="color: red">{{ error }}</p>
+                                        {% endfor %}
+                                    {% endif %}
                                 </div>
                             </div>
                         </div>
