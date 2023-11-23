@@ -51,7 +51,7 @@ class AuthenticationLoginView(FormView):
     template_name: Final = "login.html"
     form_class_dict: Final = {"login": LoginForm, "register": RegisterForm}
     form_class = LoginForm
-    success_url: Final = "/dashboard"
+    success_url: Final = "/device_groups"
 
     def get(self, request, *args, **kwargs):
         if request.user.is_authenticated:

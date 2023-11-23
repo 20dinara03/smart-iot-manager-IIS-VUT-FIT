@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, ValidationError
 from django.db.models import Q
 from django.http import HttpResponseForbidden, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
@@ -32,6 +32,30 @@ class DeviceForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['device_group'].queryset = DevicesGroup.objects.filter(admin=request.user)
         self.fields['device_type'].queryset = DeviceType.objects.all()
+
+    def clean_name(self):
+        name = self.cleaned_data.get('name')
+        if not name.isalnum():
+            raise ValidationError('The name must contain only letters and numbers.')
+        print("clean_name\n")
+        print(self.errors)
+        return name
+
+    def clean_location(self):
+        location = self.cleaned_data.get('location')
+        if not location.isalnum():
+            raise ValidationError('The location must contain only letters and numbers.')
+        print("clean_location\n")
+        print(self.errors)
+        return location
+
+    def clean_model(self):
+        model = self.cleaned_data.get('model')
+        if not model.isalnum():
+            raise ValidationError('The model must contain only letters and numbers.')
+        print("clean_model\n")
+        print(self.errors)
+        return model
 
 
 class DeviceList(AuthenticatedUserMixin, ListView):
@@ -88,7 +112,7 @@ class DeleteDeviceView(AuthenticatedUserMixin, View):
             raise PermissionDenied("User is not authenticated")
 
 
-class UpdateDeviceView(UpdateView):
+class UpdateDeviceView(AuthenticatedUserMixin, UpdateView):
     model = Device
     form_class = DeviceForm
     template_name = 'edit_device.html'
@@ -122,37 +146,23 @@ class CreateDeviceView(AuthenticatedUserMixin, CreateView):
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs['request'] = self.request
+        print(kwargs)
         return kwargs
 
     def get_context_data(self, **kwargs):
         kwargs['form'] = None
         context = super().get_context_data(**kwargs)
         context["device_form"] = DeviceForm(request=self.request)
+        print(context)
         return context
 
     def form_valid(self, form):
-        if not self.request.user.is_authenticated:
-            return HttpResponseForbidden()
-
-        data = form.cleaned_data
-
-        device = Device(
-            name=data['name'],
-            model=data['model'],
-            description=data['description'],
-            location=data['location'],
-            device_group=data['device_group'],
-            created_by=self.request.user,
-            device_type=data['device_type'],
-        )
-        device.save()
-
-        if device.device_group is not None:
-            device.device_group.devices.add(device)
-            device.device_group.save()
-
+        super().form_valid(form)
         return HttpResponseRedirect("/devices")
 
+    def form_invalid(self, form):
+        print("Form invalid\n")
+        return super().form_invalid(form)
 
 @login_required
 @require_POST

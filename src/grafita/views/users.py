@@ -1,14 +1,15 @@
 from django.contrib.auth.models import Group, User
 from django.shortcuts import redirect
 from django.views.generic import DetailView, ListView
+from grafita.views.mixins import StaffMixin
 
 
-class Users(ListView):
+class Users(StaffMixin, ListView):
     model = User
     template_name = 'admin/user.html'
 
 
-class UserDetail(DetailView):
+class UserDetail(StaffMixin, DetailView):
     model = User
     template_name = 'admin/user_detail.html'
 

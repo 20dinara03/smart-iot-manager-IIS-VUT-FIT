@@ -8,14 +8,21 @@
         <div class="card-body">
             <h2 class="card-title">Create a New Device</h2>
             <hr style="padding-bottom: 30px">
-
             <div class="container">
                 <form method="post" class="row g-2">
                     {% csrf_token %}
+                    {% if device_form.errors %}
+                        <div class="alert alert-danger" role="alert">
+                            <strong>Oops!</strong> Something went wrong.
+                            {% for error in device_form.errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
                     {% for field in device_form %}
                         <div class="mb-3 row">
                             <label class="form-label col-sm-2">{{ field.label_tag }}</label>
-                            <div class=" col-sm-4">
+                            <div class="col-sm-4">
                                 {{ field }}
                                 <div class="form-text">
                                     {{ field.help_text }}

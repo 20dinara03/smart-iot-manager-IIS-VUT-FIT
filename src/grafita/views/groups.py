@@ -3,6 +3,7 @@ from django.contrib.auth.models import Group, Permission
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponseRedirect
 from django.views.generic import DetailView, ListView
+from grafita.views.mixins import StaffMixin
 
 
 class NewGroupForm(forms.ModelForm):
@@ -11,7 +12,7 @@ class NewGroupForm(forms.ModelForm):
         fields = ["name"]
 
 
-class GroupList(ListView):
+class GroupList(StaffMixin, ListView):
     model = Group
     paginate_by = 100
     form_class = NewGroupForm
@@ -32,7 +33,7 @@ class GroupList(ListView):
         return HttpResponseRedirect("/groups")
 
 
-class ConcreteGroup(DetailView):
+class ConcreteGroup(StaffMixin, DetailView):
     model = Group
     template_name = 'admin/group_detail.html'
 

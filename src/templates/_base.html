@@ -28,7 +28,7 @@
             <div class="collapse navbar-collapse justify-content-center" id="navbarSupportedContent">
                 <ul class="navbar-nav mb-2 mb-lg-0">
                     <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href={% url "dashboard" %}>Dashboard</a>
+                        <a class="nav-link active" aria-current="page" href="/device_groups/">Device groups</a>
                     </li>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
@@ -36,8 +36,19 @@
                             Administration
                         </a>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="/groups/">Groups</a></li>
-                            <li><a class="dropdown-item" href="/users/">Users</a></li>
+                            <li><a class="dropdown-item admin-access" href="/groups/">Groups</a></li>
+                            <li><a class="dropdown-item admin-access" href="/users/">Users</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+                           aria-expanded="false">
+                            Menu
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="/devices/">Devices</a></li>
+                            <li><a class="dropdown-item" href="/device_types/">Device types</a></li>
+                            <li><a class="dropdown-item" href="/device_groups/">Device groups</a></li>
                         </ul>
                     </li>
                 </ul>

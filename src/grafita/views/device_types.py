@@ -6,6 +6,7 @@ from django.shortcuts import get_object_or_404
 from django.views import View
 from django.views.generic import DetailView, ListView, FormView, UpdateView
 from grafita.models import DeviceType, DeviceTypeParameter
+from grafita.views.mixins import AuthenticatedUserMixin
 
 
 class DeviceTypeForm(forms.ModelForm):
@@ -38,7 +39,7 @@ DeviceTypeParameterFormSet = inlineformset_factory(
 )
 
 
-class DeleteDeviceTypeView(View):
+class DeleteDeviceTypeView(AuthenticatedUserMixin, View):
     def post(self, request, pk):
         if request.user.is_authenticated:
             device_type = get_object_or_404(DeviceType, pk=pk)
@@ -48,7 +49,7 @@ class DeleteDeviceTypeView(View):
             raise PermissionDenied("User is not authenticated")
 
 
-class UpdateDeviceTypeView(UpdateView):
+class UpdateDeviceTypeView(AuthenticatedUserMixin, UpdateView):
     model = DeviceType
     form_class = DeviceTypeForm
     template_name = 'device_type_create.html'
@@ -89,7 +90,7 @@ class UpdateDeviceTypeView(UpdateView):
             return self.render_to_response(self.get_context_data(form=form))
 
 
-class DeviceTypeCreate(FormView):
+class DeviceTypeCreate(AuthenticatedUserMixin, FormView):
     form_class = DeviceTypeForm
     template_name = 'device_type_create.html'
     success_url = '/device_types/'
@@ -123,12 +124,12 @@ class DeviceTypeCreate(FormView):
             return self.render_to_response(self.get_context_data(form=form))
 
 
-class DeviceTypeList(ListView):
+class DeviceTypeList(AuthenticatedUserMixin, ListView):
     model = DeviceType
     paginate_by = 100
     template_name = 'device_types.html'
 
 
-class DeviceTypeDetail(DetailView):
+class DeviceTypeDetail(AuthenticatedUserMixin, DetailView):
     model = DeviceType
     template_name = 'device_type_detail.html'
