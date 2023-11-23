@@ -43,7 +43,7 @@ class DeleteDeviceTypeView(View):
         if request.user.is_authenticated:
             device_type = get_object_or_404(DeviceType, pk=pk)
             device_type.delete()
-            return HttpResponseRedirect("/types")
+            return HttpResponseRedirect("/device_types")
         else:
             raise PermissionDenied("User is not authenticated")
 
@@ -52,7 +52,7 @@ class UpdateDeviceTypeView(UpdateView):
     model = DeviceType
     form_class = DeviceTypeForm
     template_name = 'device_type_create.html'
-    success_url = '/types'
+    success_url = '/device_types'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -92,7 +92,7 @@ class UpdateDeviceTypeView(UpdateView):
 class DeviceTypeCreate(FormView):
     form_class = DeviceTypeForm
     template_name = 'device_type_create.html'
-    success_url = '/types/'
+    success_url = '/device_types/'
 
     def get_context_data(self, **kwargs):
         if self.request.POST:
@@ -126,7 +126,7 @@ class DeviceTypeCreate(FormView):
 class DeviceTypeList(ListView):
     model = DeviceType
     paginate_by = 100
-    template_name = 'types.html'
+    template_name = 'device_types.html'
 
 
 class DeviceTypeDetail(DetailView):

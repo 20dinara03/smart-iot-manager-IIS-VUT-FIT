@@ -31,7 +31,7 @@ urls = [
     path("user/<pk>/groups", update_user_groups),
     # types
     path('device_type_create/', DeviceTypeCreate.as_view(), name='device_type_create'),
-    path('types/', DeviceTypeList.as_view(), name='types'),
+    path('device_types/', DeviceTypeList.as_view(), name='device_types'),
     path('device_type_detail/<int:pk>/', DeviceTypeDetail.as_view(), name='device_type_detail'),
     path('device_type/<int:pk>/delete/', DeleteDeviceTypeView.as_view(), name='device_type_delete'),
     path('device_type/<int:pk>/edit/', UpdateDeviceTypeView.as_view(), name='edit_device_type'),
