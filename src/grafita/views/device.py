@@ -16,6 +16,7 @@ from grafita.views.mixins import AuthenticatedUserMixin
 class DeviceForm(forms.ModelForm):
     template_name = "snippets/standard_form.html"
 
+
     class Meta:
         model = Device
         fields = ['name', 'model', 'description', 'location', 'device_group', 'device_type']
@@ -148,13 +149,6 @@ class CreateDeviceView(AuthenticatedUserMixin, CreateView):
         kwargs['request'] = self.request
         print(kwargs)
         return kwargs
-
-    def get_context_data(self, **kwargs):
-        kwargs['form'] = None
-        context = super().get_context_data(**kwargs)
-        context["device_form"] = DeviceForm(request=self.request)
-        print(context)
-        return context
 
     def form_valid(self, form):
         super().form_valid(form)
