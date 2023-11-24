@@ -10,6 +10,7 @@ from grafita.views.mixins import AuthenticatedUserMixin
 
 
 class DeviceTypeForm(forms.ModelForm):
+    admin = forms.HiddenInput()
     class Meta:
         model = DeviceType
         fields = ['name', 'description']
@@ -124,6 +125,7 @@ class DeviceTypeCreate(AuthenticatedUserMixin, FormView):
         return context
 
     def form_valid(self, form):
+        form.instance.admin = self.request.user
         context = self.get_context_data()
         parameter_formset = context['parameter_formset']
 
@@ -151,3 +153,10 @@ class DeviceTypeList(AuthenticatedUserMixin, ListView):
 class DeviceTypeDetail(AuthenticatedUserMixin, DetailView):
     model = DeviceType
     template_name = 'device_type_detail.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        device_type = self.get_object()
+
+        context['is_creator'] = (device_type.admin == self.request.user)
+        return context

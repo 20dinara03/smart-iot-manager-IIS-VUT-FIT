@@ -19,6 +19,7 @@ class DevicesGroup(models.Model):
 class DeviceType(models.Model):
     name = models.CharField(max_length=100, unique=True)
     description = models.TextField(null=True, blank=True)
+    admin = models.ForeignKey(User, on_delete=models.CASCADE, related_name='admin_types')
 
     def __str__(self):
         return self.name

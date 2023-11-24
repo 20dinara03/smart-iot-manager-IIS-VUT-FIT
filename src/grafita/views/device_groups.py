@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.http import HttpResponseForbidden, HttpResponseRedirect
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse_lazy
 from django.views import View
 from django.views.decorators.http import require_POST
@@ -17,7 +17,6 @@ from grafita.views.mixins import AuthenticatedUserMixin
 class DeviceGroupForm(forms.ModelForm):
     admin = forms.HiddenInput()
 
-
     class Meta:
         model = DevicesGroup
         fields = ['name', 'description', 'devices']
@@ -26,7 +25,6 @@ class DeviceGroupForm(forms.ModelForm):
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 2}),
             'devices': forms.SelectMultiple(attrs={'class': 'form-control'}),
         }
-
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -47,14 +45,12 @@ class KPIForm(forms.ModelForm):
         widget=forms.Select(attrs={'class': 'form-control parameter_name'})
     )
 
-
     class Meta:
         model = KPI
         fields = ['class_name', 'parameter', 'value']
         widgets = {
             'value': forms.TextInput(attrs={'class': 'form-control'}),
         }
-
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -89,6 +85,15 @@ class DeviceGroupListView(AuthenticatedUserMixin, View):
         groups = DevicesGroup.objects.all()
         form = DeviceGroupForm()
         return render(request, self.template_name, {'groups': groups, 'form': form})
+
+    @login_required(login_url='/login')
+    def device_group_list(request):
+        if request.user.is_authenticated:
+            groups = DevicesGroup.objects.all()
+            form = DeviceGroupForm()
+            return render(request, 'device_groups.html', {'groups': groups, 'form': form})
+        else:
+            return redirect('public_device_group_list')
 
 
 class CreateDeviceGroupView(AuthenticatedUserMixin, CreateView):
@@ -250,3 +255,8 @@ def share_group(request, pk):
     user = get_object_or_404(User, pk=request.POST['recipient'])
     group.shared_with.add(user)
     return HttpResponseRedirect("/device_groups")
+
+
+def public_device_group_list(request):
+    groups = DevicesGroup.objects.all()
+    return render(request, 'public_page.html', {'groups': groups})

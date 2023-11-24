@@ -12,16 +12,17 @@
                         {% for device_type in object_list %}
                             <tr>
                                 <td>
-                                    <h4>{{ device_type.name }}</h4>
-                                    <p>{{ device_type.description }}</p>
+                                    <div class="d-flex align-items-center">
+                                        <div class="device-info">
+                                            <h4>{{ device_type.name }}</h4>
+                                            <p>{{ device_type.description }}</p>
+                                        </div>
+                                    </div>
                                 </td>
                                 <td>
-                                    <a href="{% url 'device_type_detail' device_type.pk %}" class="btn btn-info">Details</a>
-                                    <form method="post" action="{% url 'device_type_delete' device_type.pk %}">
-                                        {% csrf_token %}
-                                        <input type="hidden" name="action" value="delete">
-                                        <button type="submit" class="btn btn-danger">Delete</button>
-                                    </form>
+                                    <div class="container d-flex justify-content-end">
+                                        <a href="{% url 'device_type_detail' device_type.pk %}" class="btn btn-info">Details</a>
+                                    </div>
                                 </td>
                             </tr>
                         {% empty %}
