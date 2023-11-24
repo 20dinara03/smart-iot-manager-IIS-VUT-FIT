@@ -1,19 +1,27 @@
 {% extends "_base.html" %}
 
-{% block title %} Create Device Group {% endblock %}
+{% block title %} {{ action }} Device Group {% endblock %}
 
 {% block content %}
-    <h1>Create Device Group</h1>
+    <h1>{{ action }} Device Group</h1>
     <div class="container">
-        <form method="post" action="{% url 'create_device_group' %}">
+        <form method="post" id="device-group-form">
             <div class="row">
                 <div class="col-4">
                     {% csrf_token %}
+                    {% if form.errors %}
+                        <div class="alert alert-danger" role="alert">
+                            <strong>Oops!</strong> Something went wrong.
+                            {% for error in form.errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
                     {{ form.as_p }}
 
                     <div class="row">
                         <div class="col">
-                            <button type="submit" class="btn btn-primary">Create Device Group</button>
+                            <button type="submit" class="btn btn-primary">{{ action }} Device Group</button>
                             <a href="{% url 'device_groups' %}" class="btn btn-secondary">Back to Device Groups</a>
                         </div>
                     </div>
@@ -124,7 +132,6 @@
             $idDevices.select2()
 
             $idDevices.on('select2:selecting', function (e) {
-                // TODO: update the list of devices
                 idDevices.push(e.params.args.data.id);
                 fetch_params();
             });
@@ -150,9 +157,6 @@
                 // get the last form
                 // get the total number of forms
                 let total = kpiSet.val();
-                console.log("total");
-                console.log(total);
-                console.log(kpiSet);
                 // create a new form
                 let new_form = template_form.clone();
                 // update the id and name attributes

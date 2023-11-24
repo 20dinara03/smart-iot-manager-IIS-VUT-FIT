@@ -9,9 +9,16 @@
             <div class="row">
                 <div class="col-5">
                     {% csrf_token %}
+                    {% if form.errors %}
+                        <div class="alert alert-danger" role="alert">
+                            <strong>Oops!</strong> Something went wrong.
+                            {% for error in form.non_field_errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
                     {{ form.as_p }}
                 </div>
-
                 <div class="col-1"></div>
 
                 <div class="col-6">

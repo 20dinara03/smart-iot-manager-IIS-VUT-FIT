@@ -1,5 +1,5 @@
 from django import forms
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, ValidationError
 from django.forms import inlineformset_factory
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
@@ -18,6 +18,12 @@ class DeviceTypeForm(forms.ModelForm):
             'description': forms.Textarea(attrs={'class': 'form-control'}),
         }
 
+    def clean_name(self):
+        name = self.cleaned_data.get('name')
+        if name and not name.isalnum():
+            raise ValidationError('The name must contain only letters and numbers.')
+        return name
+
 
 class DeviceTypeParameterForm(forms.ModelForm):
     class Meta:
@@ -28,6 +34,18 @@ class DeviceTypeParameterForm(forms.ModelForm):
             'min_value': forms.NumberInput(attrs={'class': 'form-control'}),
             'max_value': forms.NumberInput(attrs={'class': 'form-control'}),
         }
+
+    def clean(self):
+        cleaned_data = super().clean()
+        min_value = cleaned_data.get('min_value')
+        max_value = cleaned_data.get('max_value')
+        param_name = cleaned_data.get('name')
+        if param_name and not param_name.isalnum():
+            raise ValidationError('The name must contain only letters and numbers.')
+        if min_value is not None and max_value is not None:
+            if min_value >= max_value:
+                raise ValidationError('Min value must be less than max value.')
+        return cleaned_data
 
 
 DeviceTypeParameterFormSet = inlineformset_factory(

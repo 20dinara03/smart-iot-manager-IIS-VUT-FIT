@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse_lazy
@@ -16,7 +17,6 @@ from grafita.views.mixins import AuthenticatedUserMixin
 class DeviceGroupForm(forms.ModelForm):
     admin = forms.HiddenInput()
 
-
     class Meta:
         model = DevicesGroup
         fields = ['name', 'description', 'devices']
@@ -26,14 +26,20 @@ class DeviceGroupForm(forms.ModelForm):
             'devices': forms.SelectMultiple(attrs={'class': 'form-control'}),
         }
 
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['devices'].queryset = Device.objects.all()
 
+    def clean_name(self):
+        name = self.cleaned_data.get('name')
+        if name and not name.isalnum():
+            raise ValidationError('The name must contain only letters and numbers.')
+        return name
+
 
 class KPIForm(forms.ModelForm):
-    class_name = forms.ChoiceField(choices=[(k, k) for k in kpi_list()], widget=forms.Select(attrs={'class': 'form-control'}))
+    class_name = forms.ChoiceField(choices=[(k, k) for k in kpi_list()],
+                                   widget=forms.Select(attrs={'class': 'form-control'}))
     parameter = forms.ModelChoiceField(
         queryset=DeviceTypeParameter.objects.none(),
         widget=forms.Select(attrs={'class': 'form-control parameter_name'})
@@ -46,10 +52,22 @@ class KPIForm(forms.ModelForm):
             'value': forms.TextInput(attrs={'class': 'form-control'}),
         }
 
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['parameter'].DeviceTypeParameter = Device.objects.none()
+
+    def clean_value(self):
+        value = self.cleaned_data.get('value')
+        parameter = self.cleaned_data.get('parameter')
+
+        if parameter:
+            min_value = parameter.min_value
+            max_value = parameter.max_value
+
+            if value < min_value or value > max_value:
+                raise ValidationError(f'Value must be between {min_value} and {max_value}')
+
+        return value
 
 
 DevicesGroupKPIFormSet = forms.inlineformset_factory(
@@ -66,7 +84,7 @@ class DeviceGroupListCreateView(AuthenticatedUserMixin, View):
     def get(self, request, *args, **kwargs):
         groups = DevicesGroup.objects.all()
         form = DeviceGroupForm()
-        return render(request, self.template_name, {'groups': groups, 'form': form})
+        return render(request, self.template_name, {'groups': groups,'form': form})
 
     def post(self, request, *args, **kwargs):
         form = DeviceGroupForm(request.POST)
@@ -90,7 +108,7 @@ class CreateDeviceGroupView(AuthenticatedUserMixin, CreateView):
 
     def form_valid(self, form):
         form.instance.admin = self.request.user
-        response = super().form_valid(form)
+        request = super().form_valid(form)
         formset = DevicesGroupKPIFormSet(self.request.POST, instance=self.object)
 
         for _form in formset:
@@ -103,31 +121,64 @@ class CreateDeviceGroupView(AuthenticatedUserMixin, CreateView):
 
         if formset.is_valid():
             objs = formset.save(commit=False)
-            print(objs)
 
             for obj in objs:  # type: KPI
                 obj.device_group = self.object
                 obj.save()
+            return request
         else:
-            print(formset.errors)
-            return self.form_invalid(form)
+            return self.render_to_response(self.get_context_data(form=form))
 
-        return response
+    def form_invalid(self, form):
+        return self.render_to_response(self.get_context_data(form=form))
 
 
 class UpdateDeviceGroupView(AuthenticatedUserMixin, UpdateView):
     model = DevicesGroup
-    form_class = DevicesGroupKPIFormSet
-    template_name = 'create_device_group.html'
+    form_class = DeviceGroupForm
+    template_name = 'update_device_group.html'
     success_url = reverse_lazy('device_groups')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         group = self.get_object()
         context['group'] = group
-        context['action'] = 'Create'
+        context['action'] = 'Update'
+        initial_values = {
+            'name': group.name,
+            'description': group.description,
+            'devices': group.devices.all(),
+        }
+
+        context['form'] = DeviceGroupForm(instance=group, initial=initial_values)
         context['formset'] = DevicesGroupKPIFormSet(instance=group, queryset=KPI.objects.filter(device_group=group))
         return context
+
+    def form_valid(self, form):
+        form.instance.admin = self.request.user
+        request = super().form_valid(form)
+        formset = DevicesGroupKPIFormSet(self.request.POST, instance=self.object)
+
+        for _form in formset:
+            device_types = self.object.devices.all().values_list('device_type', flat=True).distinct()
+
+            objects_filter = DeviceTypeParameter.objects.filter(
+                device_type__in=device_types
+            )
+            _form.fields['parameter'].queryset = objects_filter
+
+        if formset.is_valid():
+            objs = formset.save(commit=False)
+
+            for obj in objs:  # type: KPI
+                obj.device_group = self.object
+                obj.save()
+            return request
+        else:
+            return self.render_to_response(self.get_context_data(form=form))
+
+    def form_invalid(self, form):
+        return self.render_to_response(self.get_context_data(form=form))
 
 
 class DeviceGroupDetailView(AuthenticatedUserMixin, View):
@@ -139,11 +190,13 @@ class DeviceGroupDetailView(AuthenticatedUserMixin, View):
         parameters = list(DeviceTypeParameter.objects.filter(
             device_type__in=group.devices.all().values_list('device_type', flat=True).distinct()
         ).values_list('name', flat=True).distinct())
+        can_edit_or_delete = self.request.user == group.admin
         return render(request, self.template_name, {
             "kpis": kpis,
             "parameters": parameters,
             "group": group,
             "can_share": self.request.user == group.admin,
+            "can_edit_or_delete": can_edit_or_delete,
             "users": User.objects.all(),
         })
 

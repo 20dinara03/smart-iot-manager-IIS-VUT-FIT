@@ -16,7 +16,6 @@ from grafita.views.mixins import AuthenticatedUserMixin
 class DeviceForm(forms.ModelForm):
     template_name = "snippets/standard_form.html"
 
-
     class Meta:
         model = Device
         fields = ['name', 'model', 'description', 'location', 'device_group', 'device_type']
@@ -38,24 +37,18 @@ class DeviceForm(forms.ModelForm):
         name = self.cleaned_data.get('name')
         if name and not name.isalnum():
             raise ValidationError('The name must contain only letters and numbers.')
-        print("clean_name\n")
-        print(self.errors)
         return name
 
     def clean_location(self):
         location = self.cleaned_data.get('location')
-        if not location.isalnum():
+        if location and not location.isalnum():
             raise ValidationError('The location must contain only letters and numbers.')
-        print("clean_location\n")
-        print(self.errors)
         return location
 
     def clean_model(self):
         model = self.cleaned_data.get('model')
-        if not model.isalnum():
+        if model and not model.isalnum():
             raise ValidationError('The model must contain only letters and numbers.')
-        print("clean_model\n")
-        print(self.errors)
         return model
 
 
@@ -147,16 +140,34 @@ class CreateDeviceView(AuthenticatedUserMixin, CreateView):
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs['request'] = self.request
-        print(kwargs)
         return kwargs
 
     def form_valid(self, form):
-        super().form_valid(form)
+        if not self.request.user.is_authenticated:
+            return HttpResponseForbidden()
+
+        data = form.cleaned_data
+
+        device = Device(
+            name=data['name'],
+            model=data['model'],
+            description=data['description'],
+            location=data['location'],
+            device_group=data['device_group'],
+            created_by=self.request.user,
+            device_type=data['device_type'],
+        )
+        device.save()
+
+        if device.device_group is not None:
+            device.device_group.devices.add(device)
+            device.device_group.save()
+
         return HttpResponseRedirect("/devices")
 
     def form_invalid(self, form):
-        print("Form invalid\n")
         return super().form_invalid(form)
+
 
 @login_required
 @require_POST
