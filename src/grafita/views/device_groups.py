@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseForbidden, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse_lazy
 from django.views import View
@@ -17,6 +17,7 @@ from grafita.views.mixins import AuthenticatedUserMixin
 class DeviceGroupForm(forms.ModelForm):
     admin = forms.HiddenInput()
 
+
     class Meta:
         model = DevicesGroup
         fields = ['name', 'description', 'devices']
@@ -25,6 +26,7 @@ class DeviceGroupForm(forms.ModelForm):
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 2}),
             'devices': forms.SelectMultiple(attrs={'class': 'form-control'}),
         }
+
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -45,12 +47,14 @@ class KPIForm(forms.ModelForm):
         widget=forms.Select(attrs={'class': 'form-control parameter_name'})
     )
 
+
     class Meta:
         model = KPI
         fields = ['class_name', 'parameter', 'value']
         widgets = {
             'value': forms.TextInput(attrs={'class': 'form-control'}),
         }
+
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -78,20 +82,13 @@ DevicesGroupKPIFormSet = forms.inlineformset_factory(
 )
 
 
-class DeviceGroupListCreateView(AuthenticatedUserMixin, View):
+class DeviceGroupListView(AuthenticatedUserMixin, View):
     template_name = 'device_groups.html'
 
     def get(self, request, *args, **kwargs):
         groups = DevicesGroup.objects.all()
         form = DeviceGroupForm()
-        return render(request, self.template_name, {'groups': groups,'form': form})
-
-    def post(self, request, *args, **kwargs):
-        form = DeviceGroupForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return HttpResponseRedirect("/device_groups")
-        return render(request, self.template_name, {'form': form})
+        return render(request, self.template_name, {'groups': groups, 'form': form})
 
 
 class CreateDeviceGroupView(AuthenticatedUserMixin, CreateView):
@@ -199,6 +196,37 @@ class DeviceGroupDetailView(AuthenticatedUserMixin, View):
             "can_edit_or_delete": can_edit_or_delete,
             "users": User.objects.all(),
         })
+
+    def post(self, request, pk, *args, **kwargs):
+        # on post-request this view behaves that user wants to request access to a group
+
+        # check that user is not admin, does not yet have access to group or did not yet request
+        # access
+        group = get_object_or_404(DevicesGroup, pk=pk)
+        user = request.user
+
+        if request.POST.get("action") == "request":
+            if group.shared_with.contains(user) or group.requested_by.contains(user) or user is group.admin:
+                return HttpResponseForbidden()
+
+            group.requested_by.add(user)
+            group.save()
+
+            return HttpResponseRedirect("/device_groups")
+        elif request.POST.get("action") == "grant":
+            requested_by = request.POST.get("user")
+            print(user is not group.admin)
+            print(requested_by)
+            if user is not group.admin or not requested_by:
+                return HttpResponseForbidden()
+
+            requested_user = User.objects.get(pk=requested_by)
+            group.requested_by.remove(requested_user)
+            group.shared_with.add(requested_user)
+
+            group.save()
+            return HttpResponseRedirect("/device_groups")
+        return HttpResponseForbidden()
 
 
 class DeleteDeviceGroupView(AuthenticatedUserMixin, View):

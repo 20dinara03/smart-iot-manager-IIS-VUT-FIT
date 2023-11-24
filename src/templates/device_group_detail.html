@@ -27,7 +27,6 @@
             </div>
             <div class="col-2"></div>
             <div class="col-5">
-
                 <div class="container">
                     <div class="card">
                         <div class="card-header">
@@ -41,7 +40,7 @@
                                     <div class="col d-flex justify-content-start">
                                         {% if can_edit_or_delete %}
                                             <a href="{% url 'update_device_group' group.pk %}"
-                                                class="btn btn-primary">Edit</a>
+                                               class="btn btn-primary">Edit</a>
                                         {% endif %}
                                         <!-- Button trigger modal -->
                                         {% if can_share %}
@@ -55,7 +54,7 @@
                                     <div class="col d-flex justify-content-end">
                                         {% if can_edit_or_delete %}
                                             <form method="post" action="{% url 'delete_device_group' group.pk %}"
-                                                class="d-inline">
+                                                  class="d-inline">
                                                 {% csrf_token %}
                                                 <input type="hidden" name="action" value="delete">
                                                 <button type="submit" class="btn btn-danger">Delete</button>
@@ -63,6 +62,30 @@
                                         {% endif %}
                                     </div>
                                 </div>
+                                {% if group.requested_by %}
+                                    <div class="row">
+                                        <br>
+                                        <h5>Users requested access to this group</h5>
+                                        {% for user in group.requested_by.all %}
+                                            <div class="container d-flex justify-content-between">
+                                                <p>{{ user.username }}</p>
+{#                                                TODO: #}
+                                                <form method="post" action="">
+                                                    {% csrf_token %}
+                                                    <label for="action">
+                                                        <input name="action" value="grant" hidden="hidden">
+                                                    </label>
+                                                    <label>
+                                                        <input name="user" value="{{ user.pk }}" hidden="hidden">
+                                                    </label>
+                                                    <button class="btn btn-primary">Grant Access</button>
+                                                </form>
+                                            </div>
+                                            {% empty %}
+                                            Hmm... no users.
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
                             </div>
                         </div>
                         <div class="card-footer text-body-secondary">
@@ -72,28 +95,29 @@
                 </div>
             </div>
         </div>
-        <div class="row">
-                <h2>KPIs for this Group</h2>
-                    <ul class="list-group list-group-flush">
-                        {% for kpi in kpis %}
-                            <li class="list-group-item">
-                                <blockquote class="blockquote mb-0">
-                                    <p style="font-weight: bold; color: black;">{{ kpi.class_name }}</p>
-                                    <p style="font-style: italic; color: #6c757d;">Parameter: {{ kpi.parameter.name }}</p>
-                                    <p style="font-size: 18px; color: #28a745;">Value: {{ kpi.value }}</p>
-                                </blockquote>
-                            </li>
-                        {% endfor %}
-                    </ul>
-            </div>
-        <div class="row">
-            <div id="chart-device-id-1" class="chart-cont"></div>
+    </div>
+    <div class="row">
+        <h2>KPIs for this Group</h2>
+        <ul class="list-group list-group-flush">
+            {% for kpi in kpis %}
+                <li class="list-group-item">
+                    <blockquote class="blockquote mb-0">
+                        <p style="font-weight: bold; color: black;">{{ kpi.class_name }}</p>
+                        <p style="font-style: italic; color: #6c757d;">Parameter: {{ kpi.parameter.name }}</p>
+                        <p style="font-size: 18px; color: #28a745;">Value: {{ kpi.value }}</p>
+                    </blockquote>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div class="row">
+        <div id="chart-device-id-1" class="chart-cont"></div>
 
-            <div id="chart-device-id-2" class="chart-cont"></div>
+        <div id="chart-device-id-2" class="chart-cont"></div>
 
-            <div class="col-6">
-                {% include 'grafs/standard.html' with params=parameters %}
-            </div>
+        <div class="col-6">
+            {% include 'grafs/standard.html' with params=parameters %}
+        </div>
     </div>
 
     {% if can_share %}

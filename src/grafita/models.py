@@ -10,6 +10,7 @@ class DevicesGroup(models.Model):
     admin = models.ForeignKey(User, on_delete=models.CASCADE, related_name='admin_groups')
     devices = models.ManyToManyField('Device', related_name='device_groups')
     shared_with = models.ManyToManyField(User, related_name='shared_groups')
+    requested_by = models.ManyToManyField(User, related_name='request_users')
 
     def __str__(self):
         return self.name

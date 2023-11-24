@@ -34,8 +34,34 @@
                                 {{ group.description }}
                             </div>
                             <div class="d-flex justify-content-start">
-<!--                                <div style="padding-right: 20px"></div>-->
-                                <a href="{% url 'device_group_detail' group.pk %}" class="btn btn-primary">Details</a>
+                                {% if group.admin == user %}
+                                    <a href="{% url 'device_group_detail' group.pk %}"
+                                       class="btn btn-primary">Details</a>
+                                    <div style="padding-right: 20px"></div>
+                                    <form method="post" action="{% url 'delete_device_group' group.pk %}"
+                                          class="d-inline">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="action" value="delete">
+                                        <button type="submit" class="btn btn-danger">Delete</button>
+                                    </form>
+                                    <div style="padding-right: 20px"></div>
+                                    <a href="{% url 'update_device_group' group.pk %}" class="btn btn-outline-primary">Edit</a>
+                                {% elif user in group.shared_with.all %}
+                                    <a href="{% url 'device_group_detail' group.pk %}"
+                                       class="btn btn-primary">Details</a>
+                                {% elif user in group.requested_by.all %}
+                                    <a class="btn btn-block disabled">Request for access was sent</a>
+                                {% else %}
+                                    <form method="post" action="{% url 'device_group_detail' group.pk %}">
+                                        {% csrf_token %}
+
+                                        <label for="action">
+                                            <input name="action" value="request" hidden="hidden">
+                                        </label>
+                                        <button type="submit" class="btn btn-primary">Request access
+                                        </button>
+                                    </form>
+                                {% endif %}
                             </div>
                         </div>
                         <div class="card-footer text-body-secondary">
