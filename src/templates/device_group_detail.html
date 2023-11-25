@@ -62,29 +62,36 @@
                                         {% endif %}
                                     </div>
                                 </div>
-                                {% if group.requested_by %}
-                                    <div class="row">
-                                        <br>
-                                        <h5>Users requested access to this group</h5>
-                                        {% for user in group.requested_by.all %}
-                                            <div class="container d-flex justify-content-between">
-                                                <p>{{ user.username }}</p>
-{#                                                TODO: #}
-                                                <form method="post" action="">
-                                                    {% csrf_token %}
-                                                    <label for="action">
-                                                        <input name="action" value="grant" hidden="hidden">
-                                                    </label>
-                                                    <label>
-                                                        <input name="user" value="{{ user.pk }}" hidden="hidden">
-                                                    </label>
-                                                    <button class="btn btn-primary">Grant Access</button>
-                                                </form>
-                                            </div>
-                                            {% empty %}
-                                            Hmm... no users.
-                                        {% endfor %}
-                                    </div>
+                                {% if user == group.admin %}
+                                    {% if group.requested_by %}
+                                        <div class="row">
+                                            <br>
+                                            <h5>Users requested access to this group</h5>
+                                            <ul class="list-group list-group-flush">
+                                                {% for user in group.requested_by.all %}
+                                                    <li class="list-group-item">
+                                                        <div class="container d-flex justify-content-between">
+                                                            <p>{{ user.username }}</p>
+                                                            <form method="post" action="">
+                                                                {% csrf_token %}
+                                                                <label for="action">
+                                                                    <input name="action" value="grant" hidden="hidden">
+                                                                </label>
+                                                                <label>
+                                                                    <input name="user" value="{{ user.pk }}"
+                                                                           hidden="hidden">
+                                                                </label>
+                                                                <button class="btn btn-sm btn-primary">Grant Access
+                                                                </button>
+                                                            </form>
+                                                        </div>
+                                                    </li>
+                                                    {% empty %}
+                                                    Hmm... no users.
+                                                {% endfor %}
+                                            </ul>
+                                        </div>
+                                    {% endif %}
                                 {% endif %}
                             </div>
                         </div>

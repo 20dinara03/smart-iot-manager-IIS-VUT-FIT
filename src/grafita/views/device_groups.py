@@ -220,9 +220,7 @@ class DeviceGroupDetailView(AuthenticatedUserMixin, View):
             return HttpResponseRedirect("/device_groups")
         elif request.POST.get("action") == "grant":
             requested_by = request.POST.get("user")
-            print(user is not group.admin)
-            print(requested_by)
-            if user is not group.admin or not requested_by:
+            if user != group.admin or not requested_by:
                 return HttpResponseForbidden()
 
             requested_user = User.objects.get(pk=requested_by)
