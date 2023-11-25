@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.http import HttpResponseForbidden, HttpResponseRedirect
-from django.shortcuts import get_object_or_404, render, redirect
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
 from django.views import View
 from django.views.decorators.http import require_POST
@@ -17,6 +17,7 @@ from grafita.views.mixins import AuthenticatedUserMixin
 class DeviceGroupForm(forms.ModelForm):
     admin = forms.HiddenInput()
 
+
     class Meta:
         model = DevicesGroup
         fields = ['name', 'description', 'devices']
@@ -25,6 +26,7 @@ class DeviceGroupForm(forms.ModelForm):
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 2}),
             'devices': forms.SelectMultiple(attrs={'class': 'form-control'}),
         }
+
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -45,12 +47,14 @@ class KPIForm(forms.ModelForm):
         widget=forms.Select(attrs={'class': 'form-control parameter_name'})
     )
 
+
     class Meta:
         model = KPI
         fields = ['class_name', 'parameter', 'value']
         widgets = {
             'value': forms.TextInput(attrs={'class': 'form-control'}),
         }
+
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -105,13 +109,16 @@ class CreateDeviceGroupView(AuthenticatedUserMixin, CreateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['action'] = 'Create'
-        context['formset'] = DevicesGroupKPIFormSet()
+        context['formset'] = kwargs.get('formset') or DevicesGroupKPIFormSet()
         return context
 
     def form_valid(self, form):
         form.instance.admin = self.request.user
-        request = super().form_valid(form)
         formset = DevicesGroupKPIFormSet(self.request.POST, instance=self.object)
+        if not formset.is_valid():
+            return self.render_to_response(self.get_context_data(form=form, formset=formset))
+
+        request = super().form_valid(form)
 
         for _form in formset:
             device_types = self.object.devices.all().values_list('device_type', flat=True).distinct()
@@ -121,15 +128,12 @@ class CreateDeviceGroupView(AuthenticatedUserMixin, CreateView):
             )
             _form.fields['parameter'].queryset = objects_filter
 
-        if formset.is_valid():
-            objs = formset.save(commit=False)
+        objs = formset.save(commit=False)
 
-            for obj in objs:  # type: KPI
-                obj.device_group = self.object
-                obj.save()
-            return request
-        else:
-            return self.render_to_response(self.get_context_data(form=form))
+        for obj in objs:  # type: KPI
+            obj.device_group = self.object
+            obj.save()
+        return request
 
     def form_invalid(self, form):
         return self.render_to_response(self.get_context_data(form=form))
