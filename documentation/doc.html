@@ -1,0 +1,235 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=iso-8859-2"/>
+    <title>Projekt IIS</title>
+    <style type="text/css">
+        table {
+            border-collapse: collapse;
+        }
+
+        td, th {
+            border: 1px solid black;
+            padding: 0.3em 0.5em;
+            text-align: left;
+        }
+
+        dt {
+            font-weight: bold;
+            margin-top: 0.5em;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Zkontrolujte prosím nastavení kódování v hlavičce dokumentu 
+     podle použitého editoru -->
+
+<h1>IoT: správa zařízení</h1> <!-- Nahradte názvem svého zadání -->
+
+<dl>
+    <dt>Autoři</dt>
+    <dd>Dinara Garipova <!-- Nahraďte skutečným jménem a e-mailem autora a popisem činnosti -->
+        <a href="mailto:xautor01@stud.fit.vutbr.cz">xgarip00@stud.fit.vutbr.cz</a> -
+        popis činnosti v týmu:
+        <p><em>Správa zařízení:</em></p>
+        <ul>
+            <li>Vytváření, úpravy, prohlížení a mazání zařízení.</li>
+            <li>Provedení těchto akcí pomocí implementovaných formulářů.</li>
+            <li>Validace vstupních dat pro zajištění správnosti informací.</li>
+        </ul>
+        <p><em>Správa typu zařízení:</em></p>
+        <ul>
+            <li>Vytváření, úpravy, prohlížení a mazání typů zařízení.</li>
+            <li>Práce s formuláři a jejich validace.</li>
+        </ul>
+        <p><em>Správa skupin zařízení:</em></p>
+        <ul>
+            <li>Vytváření skupin ze stávajících zařízení, úpravy a mazání skupin.</li>
+            <li>Práce s formuláři a jejich validace.</li>
+        </ul>
+        <p><em>Řízení přístupu:</em></p>
+        <ul>
+            <li>Implementace systému oprávnění pro stránky a akce související se zařízeními, typy zařízení a
+                skupinami.
+            </li>
+            <li>Zajištění toho, že na relevantní stránky mají přístup pouze určití uživatelé.</li>
+        </ul>
+        <p><em>Ověření formuláře:</em></p>
+        <ul>
+            <li>Navržení a implementace ověření pro všechny formuláře v aplikaci, abyste zajistili integritu a
+                bezpečnost dat.
+            </li>
+        </ul>
+        <p><em>Stránka pro neregistrované uživatele:</em></p>
+        <ul>
+            <li>Vytvoření samostatné stránky nebo sekce určené pro neregistrované uživatele.</li>
+        </ul>
+        <p><em>Automatické vypnutí po určité době nečinnosti:</em></p>
+        <ul>
+            <li>Implementace mechanismu pro automatické odhlášení ze systému po určité době nečinnosti uživatele.</li>
+        </ul>
+    </dd>
+    <dd>Mark Barzali <!-- Nahraďte skutečným jménem a e-mailem autora a popisem činnosti -->
+        <a href="mailto:xautor02@stud.fit.vutbr.cz">xbarza00@stud.fit.vutbr.cz</a> -
+        popis činnosti v týmu
+        <p><em>Zakládání základů projektu:</em></p>
+        <ul>
+            <li>Vytvoření repozitáře v Git, struktury projektu, Docker souboru a databáze.</li>
+        </ul>
+        <p><em>Registrace a přihlášení:</em></p>
+        <ul>
+            <li>Vytvoření stránky pro registraci (login+registration) na backendu i frontendu.</li>
+        </ul>
+        <p><em>Role a KPI:</em></p>
+        <ul>
+            <li>Implementace rolí a přiřazení klíčových ukazatelů výkonu (KPI) k různým skupinám.</li>
+        </ul>
+        <p><em>Broker:</em></p>
+        <ul>
+            <li>Vytvoření uživatele, který bude moci aktualizovat hodnoty zařízení.</li>
+            <li>Simulace aktualizace hodnot zařízení prostřednictvím brokera.</li>
+        </ul>
+        <p><em>Generování metrik a grafů:</em></p>
+        <ul>
+            <li>Implementace kódu pro generování metrik.</li>
+            <li>Realizace zobrazení grafů na základě těchto metrik.</li>
+        </ul>
+        <p><em>Sdílení systému:</em></p>
+        <ul>
+            <li>Implementace funkcionality, která umožňuje uživatelům systému posílat žádosti o sdílení.</li>
+            <li>Po nasdílení se uživatel stává plnohodnotným uživatelem systému.</li>
+        </ul>
+    </dd>
+    <dt>URL aplikace</dt>
+    <dd><a href="http://www.stud.fit.vutbr.cz/~xautor01/IIS">http://www.stud.fit.vutbr.cz/~xautor01/IIS</a></dd>
+    <dd>(pokud má aplikace více vstupních stránek, napište obdobně další URL)</dd>
+</dl>
+
+<h2>Uživatelé systému pro testování</h2>
+<p>Uveďte prosím existující zástupce <strong>všech rolí uživatelů</strong>.</p>
+<table>
+    <tr>
+        <th>Login</th>
+        <th>Heslo</th>
+        <th>Role</th>
+    </tr>
+    <tr>
+        <td>admin</td>
+        <td>secret</td>
+        <td>Administrátor</td>
+    </tr>
+    <tr>
+        <td>spravce</td>
+        <td>spravce</td>
+        <td>Správce systému, tvůrce zařízení a typů.</td>
+    </tr>
+    <tr>
+        <td>osoba</td>
+        <td>osoba</td>
+        <td>Osoba s přístupem k určitým zařízením a skupinám.</td>
+    </tr>
+    <tr>
+        <td>broker</td>
+        <td>osoba</td>
+        <td>Broker</td>
+    </tr>
+</table>
+
+<p>Také v systému mohou být neregistrovaní uživatelé.</p>
+
+<h3>Video</h3>
+
+<p>Přiložte odkaz na komentované video demostrující použití informačního systému. Zaměřte se na případy užití definované
+    zadáním (např. registrace uživatele, správa uživatelů a činnosti jednotlivých rolí). Video nahrajte například na VUT
+    Google Drive, kde ho bude možné přímo spustit z odkazu.</p>
+
+<h2>Implementace</h2>
+
+<h3>Struktura projektu</h3>
+<p>
+    <strong>db:</strong> Kód pro vytvoření databáze.<br>
+    <strong>dbenv:</strong> Konfigurační soubory pro databázi a proměnné prostředí.<br>
+    <strong>nats:</strong> Nastavení pro server NATS pro výměnu zpráv.<br>
+    <strong>scripts:</strong> Kód pro práci s metrikami, včetně generování, zpracování a zobrazování.<br>
+    <strong>src/grafita:</strong> Backend logika, datové modely a API. /templates/grafs obsahuje frontendové pohledy pro
+    grafy.<br>
+    <strong>src/templates:</strong> Všechny soubory pohledů pro frontend.<br>
+    <strong>src/core:</strong> Klíčové soubory pro konfiguraci a nastavení projektu v Django.<br>
+    <strong>src/mq:</strong> Kód pro Django aplikaci "mq".<br>
+    <strong>src/rest:</strong> Django aplikace pro práci s REST API.<br>
+</p>
+<p><h3>Hlavní soubory pro implementaci funkčnosti projektu jsou umístěny ve složce src:</h3></p>
+<h4>Soubor apps.py</h4>
+<p>Soubor <code>apps.py</code> obsahuje konfiguraci aplikace Django. Toto definuje třídu <code>GrafitaConfig</code>,
+    která specifikuje použití <code>BigAutoField</code> jako výchozí pole pro pole auto ID ve vaší aplikaci ?grafita?.
+</p>
+
+<h4>Soubor kpi.py</h4>
+<p>Soubor <code>kpi.py</code> poskytuje základní třídy pro implementaci KPI (Key Performance Indicators) a jejich
+    registraci. Třída <code>AbstractKPI</code> je abstraktní a obsahuje dvě abstraktní metody: <code>validate</code> a
+    <code>val</code>. Třídy <code>Vyšší</code> a <code>Dolní</code> jsou implementace klíčových ukazatelů výkonu, které
+    kontrolují, zda je hodnota metriky nad nebo pod určitou prahovou hodnotou. Soubor také obsahuje komentovaný kód pro
+    Delta KPI, který pravděpodobně potřebuje nějakou práci.</p>
+
+<h4>Soubor models.py</h4>
+<p>Soubor <code>models.py</code> obsahuje definice modelu Django pro vaši aplikaci. Tento soubor popisuje datové modely,
+    jako jsou <code>DevicesGroup</code>, <code>DeviceType</code>, <code>DeviceTypeParameter</code>, <code>Device</code>,
+    <code>KPI</code> a <code>Metric</code>. Tyto modely představují různé typy dat a vzájemně se ovlivňují
+    prostřednictvím cizích klíčů a vztahů many-to-many.</p>
+
+<h4>Soubor urls.py</h4>
+<p>Soubor <code>urls.py</code> definuje trasy URL pro vaši aplikaci. Soubor je strukturován podle dílčích aplikací
+    (např. zařízení, typy zařízení, skupiny zařízení atd.), z nichž každá má své vlastní adresy URL a přidružené třídy
+    zobrazení Django. Zahrnuty jsou také adresy URL pro různé akce, jako je mazání, aktualizace a vytváření zařízení a
+    typů zařízení, a také adresy URL pro autorizaci.</p>
+
+<h3>Příslušné soubory ve views</h3>
+<p>V rámci složky <code>views</code> existují několik souborů pro implementaci specifické funkcionality aplikace. Každý
+    soubor obsahuje odpovídající pohledy pro danou část funkcí:</p>
+
+<ul>
+    <li><strong>auth.py:</strong> Obsahuje pohledy pro ověření uživatele (přihlášení a registrace). Implementuje
+        formuláře pro přihlášení a registraci.
+    </li>
+    <li><strong>device.py:</strong> Spravuje operace CRUD pro zařízení. Používá formuláře Django pro operace související
+        se zařízením. Zahrnuje zobrazení pro vytváření, aktualizaci a mazání zařízení. Implementuje funkci sdílení pro
+        zařízení.
+    </li>
+    <li><strong>device_groups.py:</strong> Spravuje operace CRUD pro skupiny zařízení. Implementuje formuláře pro
+        vytváření a aktualizaci skupin zařízení. Poskytuje pohledy pro zobrazení skupin zařízení, jejich sdílení a
+        zpracování požadavků na přístup ke skupinám.
+    </li>
+    <li><strong>device_types.py:</strong> Spravuje operace CRUD pro typy zařízení. Implementuje formuláře pro vytváření
+        a aktualizaci typů zařízení a jejich parametrů.
+    </li>
+    <li><strong>groups.py:</strong> Zpracovává skupiny uživatelů a oprávnění. Poskytuje pohledy pro správu skupin
+        uživatelů, přidávání/odebírání oprávnění a odstraňování skupin.
+    </li>
+    <li><strong>mixins.py:</strong> Obsahuje mixiny pro zpracování autentizace uživatelů a přístupu personálu.</li>
+    <li><strong>users.py:</strong> Spravuje pohledy související s uživateli. Implementuje zobrazení pro výpis uživatelů
+        a zobrazení podrobností o uživateli. Umožňuje aktualizaci uživatelských informací a správu uživatelských skupin.
+    </li>
+</ul>
+
+<h3>Databáze</h3>
+
+Zde vložte grafické schéma relační databáze (tabulek v databázi).
+
+<h2>Instalace</h2>
+
+Stručně popište:
+<ul>
+    <li>postup instalace na server,</li>
+    <li>softwarové požadavky (verze PHP apod.),</li>
+    <li>jak rozbalit, konfigurovat, inicializovat databázi, ...</li>
+</ul>
+
+<h2>Známé problémy</h2>
+<p>Zde popište, které body zadání nejsou implementovány a z jakého důvodu. Např. &bdquo;Z časových důvodů nebyla
+    implementována správa uživatelů.&rdquo; Pomůžete tím zrychlit hodnocení, když neimplementované funkce nebudeme muset
+    dlouze hledat.</p>
+
+</body>
+</html>
