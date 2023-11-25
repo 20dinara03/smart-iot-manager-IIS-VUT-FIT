@@ -59,7 +59,7 @@ class MetricView(views.APIView):
                 **kw,
             )
             .values("time", "value", "attribute")
-            .order_by("time")
+            .order_by("time")[:30]
         )
 
     @staticmethod
