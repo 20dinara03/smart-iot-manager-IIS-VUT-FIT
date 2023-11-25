@@ -118,12 +118,13 @@
         </ul>
     </div>
     <div class="row">
-        <div id="chart-device-id-1" class="chart-cont"></div>
 
-        <div id="chart-device-id-2" class="chart-cont"></div>
+        {% for device in group.devices.all %}
+            <div id="chart-device-id-{{ device.pk }}" class="chart-cont"></div>
+        {% endfor %}
 
         <div class="col-6">
-            {% include 'grafs/standard.html' with params=parameters %}
+            {% include 'grafs/standard.html' with params=parameters group=group %}
         </div>
     </div>
 

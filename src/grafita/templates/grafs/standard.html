@@ -9,7 +9,7 @@
     const charts = document.querySelectorAll('.chart-cont');
 
     function requestMetrics(device, time_from, time_to) {
-        let url = `/api/v1/device/${device}/metrics`;
+        let url = `/api/v1/device/${device}/metrics?group={{ group.pk }}`;
         if (time_from || time_to) {
             url += "?";
         }
@@ -64,12 +64,22 @@
         newCanvas.id = metric
         chart.appendChild(newCanvas)
 
+        const colors = []
+        for (let i = 0; i < value["color"].length; i++) {
+            if (value["color"][i]) {
+                colors.push("green")
+            } else {
+                colors.push("red")
+            }
+        }
+
         new Chart(newCanvas, {
             type: "line",
             data: {
                 labels: value["time"],
                 datasets: [
                     {
+                        backgroundColor: colors,
                         label: metric,
                         data: value["value"]
                     }
