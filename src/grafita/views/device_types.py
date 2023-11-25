@@ -2,8 +2,9 @@ from django import forms
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.forms import inlineformset_factory
 from django.http import HttpResponseRedirect
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.views import View
+from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import DetailView, ListView, FormView, UpdateView
 from grafita.models import DeviceType, DeviceTypeParameter
 from grafita.views.mixins import AuthenticatedUserMixin
@@ -11,6 +12,7 @@ from grafita.views.mixins import AuthenticatedUserMixin
 
 class DeviceTypeForm(forms.ModelForm):
     admin = forms.HiddenInput()
+
     class Meta:
         model = DeviceType
         fields = ['name', 'description']
@@ -53,7 +55,7 @@ DeviceTypeParameterFormSet = inlineformset_factory(
     DeviceType,
     DeviceTypeParameter,
     form=DeviceTypeParameterForm,
-    can_delete=False,
+    can_delete=True,
     extra=1,
 )
 
@@ -68,6 +70,14 @@ class DeleteDeviceTypeView(AuthenticatedUserMixin, View):
             raise PermissionDenied("User is not authenticated")
 
 
+@csrf_exempt
+def param_delete(request, id=None):
+    if request.method == 'POST':
+        id_list = request.POST.getlist('instance')
+        # Mark the instances for deletion instead of directly deleting them
+        DeviceTypeParameter.objects.filter(id__in=id_list).delete()
+
+
 class UpdateDeviceTypeView(AuthenticatedUserMixin, UpdateView):
     model = DeviceType
     form_class = DeviceTypeForm
@@ -77,12 +87,15 @@ class UpdateDeviceTypeView(AuthenticatedUserMixin, UpdateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if self.request.POST:
-            context['parameter_formset'] = DeviceTypeParameterFormSet(self.request.POST, instance=self.object)
+            context['parameter_formset'] = DeviceTypeParameterFormSet(
+                self.request.POST, instance=self.object, prefix='parameter')
         else:
             context['action'] = 'Update'
-            context['parameter_formset'] = DeviceTypeParameterFormSet(instance=self.object,
-                                                                      queryset=DeviceTypeParameter.objects.filter(
-                                                                          device_type=self.object))
+            context['parameter_formset'] = DeviceTypeParameterFormSet(
+                instance=self.object,
+                queryset=DeviceTypeParameter.objects.filter(device_type=self.object),
+                prefix='parameter'
+            )
         return context
 
     def form_valid(self, form):
@@ -90,19 +103,16 @@ class UpdateDeviceTypeView(AuthenticatedUserMixin, UpdateView):
         parameter_formset = context['parameter_formset']
 
         if parameter_formset and parameter_formset.is_valid():
-            self.object = form.save()  # Save the DeviceType instance
-
-            # Save the parameters
+            self.object = form.save()
             instances = parameter_formset.save(commit=False)
 
-            # Handle deleted parameters
-            for instance in parameter_formset.deleted_objects:
-                instance.delete()
-
-            # Set the DeviceType for the remaining instances
             for instance in instances:
                 instance.device_type = self.object
                 instance.save()
+
+            # Delete parameters marked for deletion
+            for form in parameter_formset.deleted_forms:
+                form.instance.delete()
 
             return HttpResponseRedirect(self.get_success_url())
         else:
@@ -138,6 +148,10 @@ class DeviceTypeCreate(AuthenticatedUserMixin, FormView):
                     parameter = parameter_form.save(commit=False)
                     parameter.device_type = device_type
                     parameter.save()
+
+            # Delete parameters marked for deletion
+            for form in parameter_formset.deleted_forms:
+                form.instance.delete()
 
             return super().form_valid(form)
         else:

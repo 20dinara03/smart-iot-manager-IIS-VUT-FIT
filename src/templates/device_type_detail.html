@@ -27,7 +27,7 @@
                     <div class="container d-flex justify-content-between">
                           {% if is_creator %}
                             <a href="{% url 'edit_device_type' object.pk %}" class="btn btn-primary">Edit</a>
-                            <form method="post" action="/devices/{{ object.id }}/delete/">
+                            <form method="post" action="/device_type/{{ object.id }}/delete/">
                               {% csrf_token %}
                               <button type="submit" class="btn btn-danger">Delete Device Type</button>
                             </form>

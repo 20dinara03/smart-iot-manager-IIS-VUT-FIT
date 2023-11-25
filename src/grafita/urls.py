@@ -8,6 +8,7 @@ from .views import (AuthenticationLoginView, AuthenticationRegisterView, Concret
                     DeleteDeviceGroupView, UpdateDeviceGroupView)
 from .views.device import share_device
 from .views.device_groups import share_group, public_device_group_list
+from .views.device_types import param_delete
 
 urls = [
     path("dashboard/", Dashboard.as_view(), name="dashboard"),
@@ -35,6 +36,7 @@ urls = [
     path('device_type_detail/<int:pk>/', DeviceTypeDetail.as_view(), name='device_type_detail'),
     path('device_type/<int:pk>/delete/', DeleteDeviceTypeView.as_view(), name='device_type_delete'),
     path('device_type/<int:pk>/edit/', UpdateDeviceTypeView.as_view(), name='edit_device_type'),
+    path('param_delete/<int:id>/', param_delete, name='param_delete'),
     # device_groups
     path('device_groups/', DeviceGroupListView.as_view(), name='device_groups'),
     path('create_device_group/', CreateDeviceGroupView.as_view(), name='create_device_group'),

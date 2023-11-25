@@ -27,8 +27,8 @@ class DeviceType(models.Model):
 
 class DeviceTypeParameter(models.Model):
     name = models.CharField(max_length=100, null=True)
-    min_value = models.IntegerField(default=0)
-    max_value = models.IntegerField(default=100)
+    min_value = models.DecimalField(max_digits=6, decimal_places=2, null=True, default=0)
+    max_value = models.DecimalField(max_digits=6, decimal_places=2, null=True, default=100)
     device_type = models.ForeignKey(DeviceType, on_delete=models.CASCADE)
 
 
