@@ -58,7 +58,7 @@ class KPIForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['parameter'].DeviceTypeParameter = Device.objects.none()
+        self.fields['parameter'].queryset = DeviceTypeParameter.objects.all()
 
     def clean_value(self):
         value = self.cleaned_data.get('value')
