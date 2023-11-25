@@ -136,7 +136,8 @@ class CreateDeviceGroupView(AuthenticatedUserMixin, CreateView):
         return request
 
     def form_invalid(self, form):
-        return self.render_to_response(self.get_context_data(form=form))
+        formset = DevicesGroupKPIFormSet(self.request.POST, instance=self.object)
+        return self.render_to_response(self.get_context_data(form=form, formset=formset))
 
 
 class UpdateDeviceGroupView(AuthenticatedUserMixin, UpdateView):
