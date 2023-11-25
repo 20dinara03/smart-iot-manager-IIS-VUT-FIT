@@ -3,7 +3,7 @@
 <script>
     let params = [
         {% for param in params %}
-        '{{ param }}',
+            '{{ param }}',
         {% endfor %}
     ]
     const charts = document.querySelectorAll('.chart-cont');
@@ -11,7 +11,7 @@
     function requestMetrics(device, time_from, time_to) {
         let url = `/api/v1/device/${device}/metrics?group={{ group.pk }}`;
         if (time_from || time_to) {
-            url += "?";
+            url += "&";
         }
         if (time_from !== undefined) {
             url += `from=${time_from}`;
@@ -46,18 +46,18 @@
 
 
 <script>
-    {#let timeFrom = document.getElementById('timeFrom');#}
-    {#let timeTo = document.getElementById('timeTo');#}
-    {#let timeFromBtn = document.getElementById('timeFromBtn');#}
-    {#let timeToBtn = document.getElementById('timeToBtn');#}
+    let timeFrom = document.getElementById('timeFrom');
+    let timeTo = document.getElementById('timeTo');
+    let timeFromBtn = document.getElementById('timeFromBtn');
+    let timeToBtn = document.getElementById('timeToBtn');
 
-    {#timeFromBtn.addEventListener('change', function () {#}
-    {#    timeFrom.disabled = !timeFromBtn.checked;#}
-    {# });#}
+    timeFromBtn.addEventListener('change', function () {
+        timeFrom.disabled = !timeFromBtn.checked;
+    });
 
-    {#timeToBtn.addEventListener('change', function () {#}
-    {#    timeTo.disabled = !timeToBtn.checked;#}
-    {# });#}
+    timeToBtn.addEventListener('change', function () {
+        timeTo.disabled = !timeToBtn.checked;
+    });
 
     function new_graph(chart, metric, value) {
         const newCanvas = document.createElement("canvas");
@@ -96,21 +96,24 @@
     }
 
     function fetch_metrics() {
+        console.log("fetching metrics")
         const time_from = timeFromBtn.checked ? new Date(timeFrom.value).getTime() / 1000 : undefined;
         const time_to = timeToBtn.checked ? new Date(timeTo.value).getTime() / 1000 : undefined;
 
-        const metricSet = requestMetrics(device, time_from, time_to)
+        for (const chart of charts) {
+            const device = chart.id.split('-')[3];
+            const metricSet = requestMetrics(device, time_from, time_to)
 
-        metricSet.then(data => {
+            metricSet.then(data => {
                 for (const [metric, value] of Object.entries(data)) {
-                    if (params[metric] === undefined) {
+                    if (params.includes(metric) === false) {
                         continue;
                     }
                     const canvas = document.getElementById(metric);
                     canvas.remove();
-                    new_graph(metric, value);
+                    new_graph(chart, metric, value);
                 }
-            }
-        )
+            })
+        }
     }
 </script>

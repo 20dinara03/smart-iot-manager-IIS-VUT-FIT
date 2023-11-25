@@ -119,6 +119,50 @@
     </div>
     <div class="row">
 
+        <time datetime="1914-12-20 08:30:45.687"></time>
+
+        <p class="d-inline-flex gap-1">
+            <a class="btn btn-primary" data-bs-toggle="collapse" href="#collapseExample" role="button"
+               aria-expanded="false"
+               aria-controls="collapseExample">
+                Filter by time
+            </a>
+        </p>
+        <div class="collapse" id="collapseExample">
+            <div class="card card-body">
+                <div class="container">
+                    <div class="row py-1">
+                        <div class="col-2">
+                            <input type="checkbox" class="btn-check" id="timeFromBtn" autocomplete="off">
+                            <label class="btn btn-outline-primary" for="timeFromBtn" style="width: 100%">Time
+                                From</label>
+                        </div>
+
+                        <div class="col-3 d-flex justify-content-center">
+                            <label for="timeFrom"></label>
+                            <input id="timeFrom" type="datetime-local" class="form-control" disabled>
+                        </div>
+                    </div>
+                    <div class="row py-1">
+                        <div class="col-2">
+                            <input type="checkbox" class="btn-check" id="timeToBtn" autocomplete="off">
+                            <label class="btn btn-outline-primary" for="timeToBtn" style="width: 100%">Time To</label>
+                        </div>
+                        <div class="col-3 d-flex justify-content-center">
+                            <label for="timeTo"></label>
+                            <input id="timeTo" type="datetime-local" class="form-control" disabled>
+                        </div>
+                    </div>
+                    <div class="row py-1">
+                        <div class="col-2">
+                            <button class="btn btn-dark" onclick="fetch_metrics()">Filter</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
         {% for device in group.devices.all %}
             <div id="chart-device-id-{{ device.pk }}" class="chart-cont"></div>
         {% endfor %}
