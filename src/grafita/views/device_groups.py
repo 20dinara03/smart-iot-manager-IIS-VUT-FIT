@@ -224,7 +224,7 @@ class DeviceGroupDetailView(AuthenticatedUserMixin, View):
 
         if request.POST.get("action") == "request":
             if group.shared_with.contains(user) or group.requested_by.contains(user) or user is group.admin:
-                return HttpResponseForbidden()
+                raise PermissionDenied
 
             group.requested_by.add(user)
             group.save()
@@ -233,7 +233,7 @@ class DeviceGroupDetailView(AuthenticatedUserMixin, View):
         elif request.POST.get("action") == "grant":
             requested_by = request.POST.get("user")
             if user != group.admin or not requested_by:
-                return HttpResponseForbidden()
+                raise PermissionDenied
 
             requested_user = User.objects.get(pk=requested_by)
             group.requested_by.remove(requested_user)
@@ -241,7 +241,7 @@ class DeviceGroupDetailView(AuthenticatedUserMixin, View):
 
             group.save()
             return HttpResponseRedirect("/device_groups")
-        return HttpResponseForbidden()
+        raise PermissionDenied
 
 
 class DeleteDeviceGroupView(AuthenticatedUserMixin, View):

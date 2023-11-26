@@ -144,7 +144,7 @@ class CreateDeviceView(AuthenticatedUserMixin, CreateView):
 
     def form_valid(self, form):
         if not self.request.user.is_authenticated:
-            return HttpResponseForbidden()
+            raise PermissionDenied
 
         data = form.cleaned_data
 
@@ -175,7 +175,7 @@ def share_device(request, pk):
     device = get_object_or_404(Device, pk=pk)
     used_id = request.POST.get('recipient')
     if used_id is None:
-        return HttpResponseForbidden()
+        raise PermissionDenied
 
     device.can_view.add(User.objects.get(pk=used_id))
     device.save()
