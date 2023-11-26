@@ -13,6 +13,7 @@ from grafita.views.mixins import AuthenticatedUserMixin
 class DeviceTypeForm(forms.ModelForm):
     admin = forms.HiddenInput()
 
+
     class Meta:
         model = DeviceType
         fields = ['name', 'description']
@@ -20,6 +21,7 @@ class DeviceTypeForm(forms.ModelForm):
             'name': forms.TextInput(attrs={'class': 'form-control'}),
             'description': forms.Textarea(attrs={'class': 'form-control'}),
         }
+
 
     def clean_name(self):
         name = self.cleaned_data.get('name')
@@ -37,6 +39,7 @@ class DeviceTypeParameterForm(forms.ModelForm):
             'min_value': forms.NumberInput(attrs={'class': 'form-control'}),
             'max_value': forms.NumberInput(attrs={'class': 'form-control'}),
         }
+
 
     def clean(self):
         cleaned_data = super().clean()
@@ -81,7 +84,7 @@ def param_delete(request, id=None):
 class UpdateDeviceTypeView(AuthenticatedUserMixin, UpdateView):
     model = DeviceType
     form_class = DeviceTypeForm
-    template_name = 'device_type_create.html'
+    template_name = 'device_type_update.html'
     success_url = '/device_types'
 
     def get_context_data(self, **kwargs):
@@ -94,8 +97,9 @@ class UpdateDeviceTypeView(AuthenticatedUserMixin, UpdateView):
             context['parameter_formset'] = DeviceTypeParameterFormSet(
                 instance=self.object,
                 queryset=DeviceTypeParameter.objects.filter(device_type=self.object),
-                prefix='parameter'
+                prefix='parameter',
             )
+
         return context
 
     def form_valid(self, form):

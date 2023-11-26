@@ -1,0 +1,180 @@
+{% extends "_base.html" %}
+
+{% block title %} {{ action }} Device Type {% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>{{ action }} Device Type</h2>
+    <form method="post" id="device-type-form">
+        <div class="row">
+            <div class="col-5">
+                {% csrf_token %}
+                {% if form.errors %}
+                <div class="alert alert-danger" role="alert">
+                    <strong>Oops!</strong> Something went wrong.
+                    {% for error in form.non_field_errors %}
+                    <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                {{ form.as_p }}
+            </div>
+            <div class="col-1"></div>
+
+            <div class="col-6">
+                <h3>Parameters</h3>
+
+                {% if parameter_formset.errors %}
+                <div class="alert alert-danger" role="alert">
+                    <strong>Oops!</strong> Something went wrong.
+
+                    {% for error in parameter_formset.errors %}
+                    <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <div id="parameter-formset" class="container">
+                    {{ parameter_formset.management_form }}
+                    {% for parameter_form in parameter_formset %}
+                    {% if parameter_form.instance.id %}
+                    <div class="row" id=attr-{{ forloop.counter0 }}>
+                        {{ parameter_form.id }}
+                        <div class="col-4" style="display: flex; justify-content: flex-end; flex-direction: column;">
+                            {{ parameter_form.name.label_tag }}
+                            {{ parameter_form.name }}
+                        </div>
+                        <div class="col-3">
+                            {{ parameter_form.min_value.label_tag }}
+                            {{ parameter_form.min_value }}
+                        </div>
+                        <div class="col-3">
+                            {{ parameter_form.max_value.label_tag }}
+                            {{ parameter_form.max_value }}
+                        </div>
+                        <div class="col-2" style="display: flex; align-items: flex-end">
+                            <button type="button" class="btn btn-danger remove-parameter"  onclick="delete_attr({{ forloop.counter0 }})">Delete</button>
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+                <div class="row" style="margin-top: 20px">
+                    <div class="col">
+                        <button type="button" id="add-parameter" class="btn btn-secondary">Add Parameter
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-4 d-flex">
+                    <button type="submit" class="btn btn-primary">{{ action }} Device Type</button>
+                </div>
+            </div>
+        </div>
+    </form>
+    {% if parameter_formset|length == 1 %}
+        <div hidden="hidden">
+            {% for parameter_form in parameter_formset %}
+                <div class="row" id="template">
+                    {{ parameter_form.id }}
+                    <div class="col-4" style="display: flex; justify-content: flex-end; flex-direction: column;">
+                        {{ parameter_form.name.label_tag }}
+                        {{ parameter_form.name }}
+                    </div>
+                    <div class="col-3">
+                        {{ parameter_form.min_value.label_tag }}
+                        {{ parameter_form.min_value }}
+                    </div>
+                    <div class="col-3">
+                        {{ parameter_form.max_value.label_tag }}
+                        {{ parameter_form.max_value }}
+                    </div>
+                    <div class="col-2" style="display: flex; align-items: flex-end">
+                        <button type="button" class="btn btn-danger remove-parameter"  onclick="delete_attr({{ forloop.counter0 }})">Delete</button>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block jquery %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+{% endblock %}
+
+{% block script %}
+<script>
+    const form = $("#device-type-form");
+    {% if parameter_formset|length == 1 %}
+    let template_form = $("#template");
+    {% else %}
+    let template_form = $("#parameter-formset .row:last-child");
+    {% endif %}
+    let $devicetypeparameterSet = $("#id_parameter-TOTAL_FORMS");
+    {% if parameter_formset|length == 1 %}
+    $devicetypeparameterSet.val(0);
+    {% else %}
+    $devicetypeparameterSet.val(parseInt($devicetypeparameterSet.val()) - 1);
+
+    {% endif %}
+    const to_delete = [];
+
+    function update_total_forms_after_delete() {
+        $devicetypeparameterSet.val(parseInt($devicetypeparameterSet.val()) - 1);
+        // update the names and IDs of the form elements
+        $("#parameter-formset .row").each(function (index) {
+            let new_index = index;
+            $(this).find("input, label, button").each(function () {
+                let name = $(this).attr("name").replace(/-\d+-/, `-${new_index}-`);
+                let id = `id_${name}`;
+                $(this).attr({"name": name, "id": id});
+            });
+        });
+    }
+
+    function delete_attr(id) {
+        let cont = $(`#attr-${id}`);
+        cont.hide();
+        form.append(`<input type="hidden" name="parameter-${id}-DELETE" value="on">`);
+    }
+
+    $(document).ready(function () {
+
+        // click on button #add-parameter
+        $("#add-parameter").click(function () {
+            // get the last form
+            // get the total number of forms
+            let total = $devicetypeparameterSet.val();
+            // create a new form
+            let new_form = template_form.clone();
+            // update the id and name attributes
+
+            new_form.find("input").each(function () {
+                let name = $(this).attr("name").replace(`-${total - 1}-`, `-${total}-`);
+                let id = `id_${name}`;
+                $(this).attr({"name": name, "id": id}).val("");
+            });
+
+            new_form.find("label").each(function () {
+                let new_for = $(this).attr("for").replace(`-${total - 1}-`, `-${total}-`);
+                $(this).attr("for", new_for);
+            });
+
+            $devicetypeparameterSet.val(parseInt(total) + 1);
+
+            $("#parameter-formset").append(new_form);
+
+            new_form.show();
+
+            // add a click event to the new form
+            new_form.find(".remove-parameter").click(function () {
+                // remove the form
+                new_form.remove();
+                update_total_forms_after_delete()
+            });
+        });
+    });
+</script>
+{% endblock %}
