@@ -160,16 +160,11 @@ class UpdateDeviceGroupView(AuthenticatedUserMixin, UpdateView):
             'devices': group.devices.all(),
         }
         context['form'] = DeviceGroupForm(instance=group, initial=initial_values)
-        if self.request.POST:
-            context['formset'] = DevicesGroupKPIFormSet(
-                self.request.POST, instance=self.object, prefix='parameter')
-        else:
-            context['action'] = 'Update'
+        if 'formset' not in kwargs:
             context['formset'] = DevicesGroupKPIFormSet(
                 instance=group,
-                queryset=KPI.objects.filter(device_group=group),
-                prefix='parameter',
-        )
+                queryset=KPI.objects.filter(device_group=group)
+            )
         return context
 
     def form_valid(self, form):

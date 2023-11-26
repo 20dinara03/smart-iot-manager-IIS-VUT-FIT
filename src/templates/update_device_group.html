@@ -117,13 +117,15 @@
     {% else %}
     let template_form = $("#formset .row:last-child");
     {% endif %}
-    let $kpiSet = $("#id_parameter-TOTAL_FORMS");
+
+    let $kpiSet = $("#id_kpi_set-TOTAL_FORMS");
+
     {% if formset|length == 1 %}
     $kpiSet.val(0);
     {% else %}
     $kpiSet.val(parseInt($kpiSet.val()) - 1);
-
     {% endif %}
+
     const to_delete = [];
 
     function update_total_forms_after_delete() {
@@ -157,13 +159,19 @@
             // update the id and name attributes
 
             new_form.find("input").each(function () {
-                let name = $(this).attr("name").replace(`-${total - 1}-`, `-${total}-`);
+                let name = $(this).attr("name").replace(/-\d+-/, `-${total}-`);
+                let id = `id_${name}`;
+                $(this).attr({"name": name, "id": id}).val("");
+            });
+
+            new_form.find("select").each(function () {
+                let name = $(this).attr("name").replace(/-\d+-/, `-${total}-`);
                 let id = `id_${name}`;
                 $(this).attr({"name": name, "id": id}).val("");
             });
 
             new_form.find("label").each(function () {
-                let new_for = $(this).attr("for").replace(`-${total - 1}-`, `-${total}-`);
+                let new_for = $(this).attr("for").replace(/-\d+-/, `-${total}-`);
                 $(this).attr("for", new_for);
             });
 
