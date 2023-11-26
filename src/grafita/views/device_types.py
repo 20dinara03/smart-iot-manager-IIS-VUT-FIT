@@ -23,13 +23,6 @@ class DeviceTypeForm(forms.ModelForm):
         }
 
 
-    def clean_name(self):
-        name = self.cleaned_data.get('name')
-        if name and not name.isalnum():
-            raise ValidationError('The name must contain only letters and numbers.')
-        return name
-
-
 class DeviceTypeParameterForm(forms.ModelForm):
     class Meta:
         model = DeviceTypeParameter
@@ -45,9 +38,6 @@ class DeviceTypeParameterForm(forms.ModelForm):
         cleaned_data = super().clean()
         min_value = cleaned_data.get('min_value')
         max_value = cleaned_data.get('max_value')
-        param_name = cleaned_data.get('name')
-        if param_name and not param_name.isalnum():
-            raise ValidationError('The name must contain only letters and numbers.')
         if min_value is not None and max_value is not None:
             if min_value >= max_value:
                 raise ValidationError('Min value must be less than max value.')

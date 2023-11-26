@@ -33,12 +33,6 @@ class DeviceForm(forms.ModelForm):
         self.fields['device_group'].queryset = DevicesGroup.objects.filter(admin=request.user)
         self.fields['device_type'].queryset = DeviceType.objects.all()
 
-    def clean_name(self):
-        name = self.cleaned_data.get('name')
-        if name and not name.isalnum():
-            raise ValidationError('The name must contain only letters and numbers.')
-        return name
-
     def clean_location(self):
         location = self.cleaned_data.get('location')
         if location and not location.isalnum():

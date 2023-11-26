@@ -32,11 +32,6 @@ class DeviceGroupForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['devices'].queryset = Device.objects.all()
 
-    def clean_name(self):
-        name = self.cleaned_data.get('name')
-        if name and not name.isalnum():
-            raise ValidationError('The name must contain only letters and numbers.')
-        return name
 
 
 class KPIForm(forms.ModelForm):
