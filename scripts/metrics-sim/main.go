@@ -101,6 +101,8 @@ LOOP:
 		default:
 			msg := nats.NewMsg(NATSSubject)
 			msg.Header.Add(NATSHeader, d.Id)
+			msg.Header.Add("username", "broker")
+			msg.Header.Add("password", "pass")
 
 			var bodyMap = make(map[string]int)
 
