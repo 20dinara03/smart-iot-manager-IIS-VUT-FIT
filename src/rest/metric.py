@@ -71,6 +71,9 @@ class MetricView(views.APIView):
             attribute_name = metric["attribute"]
             if attribute_name not in validators:
                 kpi = group.kpi_set.filter(parameter__name=attribute_name).first()
+                if not kpi:
+                    logging.warning(f"KPI for {attribute_name} not found")
+                    return df
                 validators[attribute_name] = partial(kpi_registry[kpi.class_name].val, threshold=kpi.value)
 
             attr = df.get(attribute_name)
