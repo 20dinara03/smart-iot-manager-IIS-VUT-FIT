@@ -39,7 +39,7 @@ class UserDetail(StaffMixin, DetailView):
 
 
 def update_user_groups(request, pk: int):
-    user: User = User.objects.get(device_pk=pk)
+    user: User = User.objects.get(id=pk)
     data = request.POST
     groups_id: list[int] = data.getlist('groups')
     groups: list[Group] = Group.objects.filter(pk__in=groups_id)
