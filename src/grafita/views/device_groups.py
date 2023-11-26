@@ -1,8 +1,8 @@
 from django import forms
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from django.core.exceptions import ValidationError
-from django.http import HttpResponseForbidden, HttpResponseRedirect
+from django.core.exceptions import PermissionDenied, ValidationError
+from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
 from django.views import View
@@ -168,7 +168,6 @@ class UpdateDeviceGroupView(AuthenticatedUserMixin, UpdateView):
         return context
 
     def form_valid(self, form):
-        form.instance.admin = self.request.user
         request = super().form_valid(form)
         formset = DevicesGroupKPIFormSet(self.request.POST, instance=self.object)
 
@@ -186,13 +185,18 @@ class UpdateDeviceGroupView(AuthenticatedUserMixin, UpdateView):
             for obj in objs:  # type: KPI
                 obj.device_group = self.object
                 obj.save()
+
+            for _form in formset.deleted_forms:
+                _form.instance.delete()
+
             return request
         else:
-            return self.render_to_response(self.get_context_data(form=form))
+            return self.render_to_response(self.get_context_data(form=form, formset=formset))
 
     def form_invalid(self, form):
-        return self.render_to_response(self.get_context_data(form=form))
-
+        formset = DevicesGroupKPIFormSet(self.request.POST, instance=self.object)
+        formset.is_valid()
+        return self.render_to_response(self.get_context_data(form=form, formset=formset))
 
 
 class DeviceGroupDetailView(AuthenticatedUserMixin, View):
