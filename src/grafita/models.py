@@ -31,6 +31,8 @@ class DeviceTypeParameter(models.Model):
     max_value = models.DecimalField(max_digits=6, decimal_places=2, null=True, default=100)
     device_type = models.ForeignKey(DeviceType, on_delete=models.CASCADE)
 
+    def __str__(self):
+        return self.name
 
 class Device(models.Model):
     name = models.CharField(max_length=100, unique=True)

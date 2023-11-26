@@ -3,197 +3,183 @@
 {% block title %} Update Device Group {% endblock %}
 
 {% block content %}
-    <h1>Update Device Group</h1>
-    <div class="container">
-        <form method="post" action="{% url 'update_device_group' group.pk %}">
-            <div class="row">
-                <div class="col-4">
-                    {% csrf_token %}
-                    {% if form.errors %}
-                        <div class="alert alert-danger" role="alert">
-                            <strong>Oops!</strong> Something went wrong.
-                            {% for error in form.errors %}
-                                <p>{{ error }}</p>
-                            {% endfor %}
-                        </div>
-                    {% endif %}
-                    {{ form.as_p }}
-
-                    <div class="row">
-                        <div class="col">
-                            <button type="submit" class="btn btn-primary">Update Device Group</button>
-                            <a href="{% url 'device_groups' %}" class="btn btn-secondary">Back to Device Groups</a>
-                        </div>
-                    </div>
+<div class="container">
+    <h2>Update Device Group</h2>
+    <form method="post" id="device-group-form">
+        <div class="row">
+            <div class="col-4">
+                {% csrf_token %}
+                {% if form.errors %}
+                <div class="alert alert-danger" role="alert">
+                    <strong>Oops!</strong> Something went wrong.
+                    {% for error in form.errors %}
+                    <p>{{ error }}</p>
+                    {% endfor %}
                 </div>
-                <div class="col-1"></div>
-                <div class="col-6">
-                    <h3>KPIs for this group</h3>
-                    {% if formset.errors %}
-                        <div class="alert alert-danger" role="alert">
-                            <strong>Oops!</strong> Something went wrong.
+                {% endif %}
+                {{ form.as_p }}
+            </div>
+            <div class="col-1"></div>
 
-                            {% for error in formset.errors %}
-                                <p>{{ error }}</p>
-                            {% endfor %}
+            <div class="col-6">
+                <h3>KPIs for this group</h3>
+
+                {% if formset.errors %}
+                <div class="alert alert-danger" role="alert">
+                    <strong>Oops!</strong> Something went wrong.
+
+                    {% for error in formset.errors %}
+                    <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <div id="formset" class="container">
+                    {{ formset.management_form }}
+                    {% for kpi_form in formset %}
+                    {% if kpi_form.instance.id %}
+                    <div class="row" id=attr-{{ forloop.counter0 }}>
+                        {{ kpi_form.id }}
+                        <div class="col-4"
+                             style="display: flex; justify-content: flex-end; flex-direction: column;">
+                            {{ kpi_form.class_name.label_tag }}
+                            {{ kpi_form.class_name }}
                         </div>
-                    {% endif %}
-
-                    <div id="parameter-formset" class="container">
-                        {% if formset.forms %}
-                            {{ formset.management_form }}
-                            {% for kpi_form in formset %}
-                                <div class="row">
-                                    {{ kpi_form.id }}
-                                    <div class="col-4"
-                                         style="display: flex; justify-content: flex-end; flex-direction: column;">
-                                        {{ kpi_form.class_name.label_tag }}
-                                        {{ kpi_form.class_name }}
-
-                                    </div>
-                                    <div class="col-4">
-                                        {{ kpi_form.parameter.label_tag }}
-                                        {{ kpi_form.parameter }}
-                                    </div>
-                                    <div class="col-2">
-                                        {{ kpi_form.value.label_tag }}
-                                        {{ kpi_form.value }}
-                                    </div>
-                                    <div class="col-2" style="display: flex; align-items: flex-end">
-                                        <button type="button" class="btn btn-danger remove-parameter">Delete
-                                        </button>
-                                    </div>
-                                </div>
-                            {% endfor %}
-                        {% else %}
-                            <div class="parameter" style="display: none;">
-                                {{ formset.empty_form.as_table }}
-                            </div>
-                        {% endif %}
+                        <div class="col-4">
+                            {{ kpi_form.parameter.label_tag }}
+                            {{ kpi_form.parameter }}
+                        </div>
+                        <div class="col-2">
+                            {{ kpi_form.value.label_tag }}
+                            {{ kpi_form.value }}
+                        </div>
+                        <div class="col-2" style="display: flex; align-items: flex-end">
+                            <button type="button" class="btn btn-danger remove-parameter" onclick="delete_attr({{ forloop.counter0 }})">Delete</button>
+                        </div>
                     </div>
-                    <div class="row" style="margin-top: 20px">
-                        <div class="col">
-                            <button type="button" id="add-parameter" class="btn btn-secondary">Add Parameter
-                            </button>
-                        </div>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+                <div class="row" style="margin-top: 20px">
+                    <div class="col">
+                        <button type="button" id="add-parameter" class="btn btn-secondary">Add KPI
+                        </button>
                     </div>
                 </div>
             </div>
-        </form>
-    </div>
+            <div class="row">
+                <div class="col d-flex">
+                    <button type="submit" class="btn btn-primary">{{ action }} Device Group</button>
+                    <a href="{% url 'device_groups' %}" class="btn btn-secondary">Back to Device Groups</a>
+                </div>
+            </div>
+        </div>
+    </form>
+    {% if formset|length == 1 %}
+        <div hidden="hidden">
+            {% for kpi_form in formset %}
+                <div class="row" id="template">
+                    {{ kpi_form.id }}
+                    <div class="col-4" style="display: flex; justify-content: flex-end; flex-direction: column;">
+                        {{ kpi_form.class_name.label_tag }}
+                        {{ kpi_form.class_name }}
+                    </div>
+                    <div class="col-3">
+                        {{ kpi_form.parameter.label_tag }}
+                        {{ kpi_form.parameter }}
+                    </div>
+                    <div class="col-3">
+                        {{ kpi_form.value.label_tag }}
+                        {{ kpi_form.value }}
+                    </div>
+                    <div class="col-2" style="display: flex; align-items: flex-end">
+                        <button type="button" class="btn btn-danger remove-parameter"  onclick="delete_attr({{ forloop.counter0 }})">Delete</button>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>
 {% endblock %}
 
 {% block jquery %}
 
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 {% endblock %}
 
 
 {% block script %}
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+<script>
+    const form = $("#device-group-form");
+    {% if formset|length == 1 %}
+    let template_form = $("#template");
+    {% else %}
+    let template_form = $("#formset .row:last-child");
+    {% endif %}
+    let $kpiSet = $("#id_parameter-TOTAL_FORMS");
+    {% if formset|length == 1 %}
+    $kpiSet.val(0);
+    {% else %}
+    $kpiSet.val(parseInt($kpiSet.val()) - 1);
 
-    <script>
-        let template_form = $("#parameter-formset .row:last-child");
-        let kpiSet = $("#id_kpi_set-TOTAL_FORMS");
-        console.log(kpiSet);
+    {% endif %}
+    const to_delete = [];
 
-        function update_total_forms_after_delete() {
-            kpiSet.val(parseInt(kpiSet.val()) - 1);
-        }
-
-        let idDevices = [];
-
-        const url = "/api/v1/device_parameters/";
-        const query_key = "devices";
-
-        function fetch_params() {
-            let query = idDevices.join(",");
-            let params = {};
-            params[query_key] = query;
-            $.ajax({
-                url: url,
-                data: params,
-                success: function (data) {
-                    let $parameter_name = $(".parameter_name");
-                    $parameter_name.empty();
-                    for (let i = 0; i < data.length; i++) {
-                        let option = new Option(data[i].name, data[i].pk, true, true);
-                        $parameter_name.append(option);
-                    }
-                }
-            });
-
-        }
-
-        $(document).ready(function () {
-            let $idDevices = $('#id_devices');
-            $idDevices.select2()
-
-            $idDevices.on('select2:selecting', function (e) {
-                // TODO: update the list of devices
-                idDevices.push(e.params.args.data.id);
-                fetch_params();
-            });
-
-            $idDevices.on('select2:unselecting', function (e) {
-                index = idDevices.indexOf(e.params.args.data.id);
-                if (index > -1) {
-                    idDevices.splice(index, 1);
-                }
-                fetch_params();
-            });
-
-            // set removing of forms
-            $(".remove-parameter").click(function () {
-                // remove the form
-                $(this).parent().parent().remove();
-                // update the total number of forms
-                update_total_forms_after_delete();
-            });
-
-            // click on button #add-parameter
-            $("#add-parameter").click(function () {
-                // get the last form
-                // get the total number of forms
-                let total = kpiSet.val();
-                console.log("total");
-                console.log(total);
-                console.log(kpiSet);
-                // create a new form
-                let new_form = template_form.clone();
-                // update the id and name attributes
-
-                new_form.find("input").each(function () {
-                    let name = $(this).attr("name").replace(`-0-`, `-${total}-`);
-                    $(this).attr({"name": name, "id": `id_${name}`}).val("");
-                });
-
-                new_form.find("select").each(function () {
-                    let name = $(this).attr("name").replace(`-0-`, `-${total}-`);
-                    let id = `id_${name}`;
-                    $(this).attr({"name": name, "id": id}).val("");
-                });
-
-                new_form.find("label").each(function () {
-                    let new_for = $(this).attr("for").replace(`-0-`, `-${total}-`);
-                    $(this).attr("for", new_for);
-                });
-
-                kpiSet.val(parseInt(total) + 1);
-
-                $("#parameter-formset").append(new_form);
-
-                new_form.show();
-
-                // add a click event to the new form
-                new_form.find(".remove-parameter").click(function () {
-                    // remove the form
-                    new_form.remove();
-                    update_total_forms_after_delete()
-                });
+    function update_total_forms_after_delete() {
+        $kpiSet.val(parseInt($kpiSet.val()) - 1);
+        // update the names and IDs of the form elements
+        $("#formset .row").each(function (index) {
+            let new_index = index;
+            $(this).find("input, label, button").each(function () {
+                let name = $(this).attr("name").replace(/-\d+-/, `-${new_index}-`);
+                let id = `id_${name}`;
+                $(this).attr({"name": name, "id": id});
             });
         });
-    </script>
+    }
+
+    function delete_attr(id) {
+        let cont = $(`#attr-${id}`);
+        cont.hide();
+        form.append(`<input type="hidden" name="parameter-${id}-DELETE" value="on">`);
+    }
+
+    $(document).ready(function () {
+
+        // click on button #add-parameter
+        $("#add-parameter").click(function () {
+            // get the last form
+            // get the total number of forms
+            let total = $kpiSet.val();
+            // create a new form
+            let new_form = template_form.clone();
+            // update the id and name attributes
+
+            new_form.find("input").each(function () {
+                let name = $(this).attr("name").replace(`-${total - 1}-`, `-${total}-`);
+                let id = `id_${name}`;
+                $(this).attr({"name": name, "id": id}).val("");
+            });
+
+            new_form.find("label").each(function () {
+                let new_for = $(this).attr("for").replace(`-${total - 1}-`, `-${total}-`);
+                $(this).attr("for", new_for);
+            });
+
+            $kpiSet.val(parseInt(total) + 1);
+
+            $("#formset").append(new_form);
+
+            new_form.show();
+
+            // add a click event to the new form
+            new_form.find(".remove-parameter").click(function () {
+                // remove the form
+                new_form.remove();
+                update_total_forms_after_delete()
+            });
+        });
+    });
+</script>
 {% endblock %}

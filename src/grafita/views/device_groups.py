@@ -78,6 +78,7 @@ DevicesGroupKPIFormSet = forms.inlineformset_factory(
     DevicesGroup,
     KPI,
     form=KPIForm,
+    can_delete=True,
     extra=1
 )
 
@@ -109,16 +110,13 @@ class CreateDeviceGroupView(AuthenticatedUserMixin, CreateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['action'] = 'Create'
-        context['formset'] = kwargs.get('formset') or DevicesGroupKPIFormSet()
+        context['formset'] = DevicesGroupKPIFormSet()
         return context
 
     def form_valid(self, form):
         form.instance.admin = self.request.user
+        response = super().form_valid(form)
         formset = DevicesGroupKPIFormSet(self.request.POST, instance=self.object)
-        if not formset.is_valid():
-            return self.render_to_response(self.get_context_data(form=form, formset=formset))
-
-        request = super().form_valid(form)
 
         for _form in formset:
             device_types = self.object.devices.all().values_list('device_type', flat=True).distinct()
@@ -128,12 +126,18 @@ class CreateDeviceGroupView(AuthenticatedUserMixin, CreateView):
             )
             _form.fields['parameter'].queryset = objects_filter
 
-        objs = formset.save(commit=False)
+        if formset.is_valid():
+            objs = formset.save(commit=False)
+            print(objs)
 
-        for obj in objs:  # type: KPI
-            obj.device_group = self.object
-            obj.save()
-        return request
+            for obj in objs:  # type: KPI
+                obj.device_group = self.object
+                obj.save()
+        else:
+            print(formset.errors)
+            return self.form_invalid(form)
+
+        return response
 
     def form_invalid(self, form):
         formset = DevicesGroupKPIFormSet(self.request.POST, instance=self.object)
@@ -150,15 +154,22 @@ class UpdateDeviceGroupView(AuthenticatedUserMixin, UpdateView):
         context = super().get_context_data(**kwargs)
         group = self.get_object()
         context['group'] = group
-        context['action'] = 'Update'
         initial_values = {
             'name': group.name,
             'description': group.description,
             'devices': group.devices.all(),
         }
-
         context['form'] = DeviceGroupForm(instance=group, initial=initial_values)
-        context['formset'] = DevicesGroupKPIFormSet(instance=group, queryset=KPI.objects.filter(device_group=group))
+        if self.request.POST:
+            context['formset'] = DevicesGroupKPIFormSet(
+                self.request.POST, instance=self.object, prefix='parameter')
+        else:
+            context['action'] = 'Update'
+            context['formset'] = DevicesGroupKPIFormSet(
+                instance=group,
+                queryset=KPI.objects.filter(device_group=group),
+                prefix='parameter',
+        )
         return context
 
     def form_valid(self, form):
@@ -186,6 +197,7 @@ class UpdateDeviceGroupView(AuthenticatedUserMixin, UpdateView):
 
     def form_invalid(self, form):
         return self.render_to_response(self.get_context_data(form=form))
+
 
 
 class DeviceGroupDetailView(AuthenticatedUserMixin, View):
