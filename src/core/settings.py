@@ -110,6 +110,8 @@ LANGUAGE_CODE = "en-us"
 # set timezone to UTC+1 (czech republic)
 TIME_ZONE = "Europe/Prague"
 
+SESSION_COOKIE_AGE = 60 * 10  # 10 minutes
+SESSION_SAVE_EVERY_REQUEST = True
 
 USE_I18N = True
 
