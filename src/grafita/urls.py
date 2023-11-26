@@ -48,4 +48,6 @@ urls = [
     path('share_group/<int:pk>/', share_group, name='share_group'),
     # public
     path('public_page/', public_device_group_list, name='public_device_group_list'),
+    # redirect / to /dashboard
+    path('', DeviceList.as_view(), name='dashboard'),
 ]
