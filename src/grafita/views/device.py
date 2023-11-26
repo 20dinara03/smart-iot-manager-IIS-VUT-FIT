@@ -35,8 +35,8 @@ class DeviceForm(forms.ModelForm):
 
     def clean_location(self):
         location = self.cleaned_data.get('location')
-        if location and not location.isalnum():
-            raise ValidationError('The location must contain only letters and numbers.')
+        if location and not all(char.isalnum() or char.isspace() for char in location):
+            raise ValidationError('The location must contain only letters, numbers, and spaces.')
         return location
 
     def clean_model(self):
