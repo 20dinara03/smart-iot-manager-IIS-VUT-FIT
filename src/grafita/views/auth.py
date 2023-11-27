@@ -19,9 +19,11 @@ class LoginForm(forms.ModelForm):
     username = forms.CharField(widget=forms.TextInput(attrs={"placeholder": "Username", "class": "form-control"}))
     password = forms.CharField(widget=forms.PasswordInput(attrs={"class": "form-control"}))
 
+
     class Meta:
         model = User
         fields = ["username", "password"]
+
 
     def validate_unique(self):
         pass
@@ -30,6 +32,7 @@ class LoginForm(forms.ModelForm):
 class RegisterForm(LoginForm):
     password2 = forms.CharField(widget=forms.PasswordInput(attrs={"class": "form-control"}))
     email = forms.EmailField(widget=forms.EmailInput(attrs={"placeholder": "Email", "class": "form-control"}))
+
 
     class Meta:
         model = User
@@ -51,7 +54,7 @@ class AuthenticationLoginView(FormView):
     template_name: Final = "login.html"
     form_class_dict: Final = {"login": LoginForm, "register": RegisterForm}
     form_class = LoginForm
-    success_url: Final = "/dashboard"
+    success_url: Final = "/device_groups"
 
     def get(self, request, *args, **kwargs):
         if request.user.is_authenticated:

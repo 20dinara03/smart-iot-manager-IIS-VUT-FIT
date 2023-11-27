@@ -1,55 +1,17 @@
 {% include 'grafs/_graf.html' %}
 
-<time datetime="1914-12-20 08:30:45.687"></time>
-
-<p class="d-inline-flex gap-1">
-    <a class="btn btn-primary" data-bs-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false"
-       aria-controls="collapseExample">
-        Filter by time
-    </a>
-</p>
-<div class="collapse" id="collapseExample">
-    <div class="card card-body">
-        <div class="container">
-            <div class="row py-1">
-                <div class="col-2">
-                    <input type="checkbox" class="btn-check" id="timeFromBtn" autocomplete="off">
-                    <label class="btn btn-outline-primary" for="timeFromBtn" style="width: 100%">Time From</label>
-                </div>
-
-                <div class="col-3 d-flex justify-content-center">
-                    <label for="timeFrom"></label>
-                    <input id="timeFrom" type="datetime-local" class="form-control" disabled>
-                </div>
-            </div>
-            <div class="row py-1">
-                <div class="col-2">
-                    <input type="checkbox" class="btn-check" id="timeToBtn" autocomplete="off">
-                    <label class="btn btn-outline-primary" for="timeToBtn" style="width: 100%">Time To</label>
-                </div>
-                <div class="col-3 d-flex justify-content-center">
-                    <label for="timeTo"></label>
-                    <input id="timeTo" type="datetime-local" class="form-control" disabled>
-                </div>
-            </div>
-            <div class="row py-1">
-                <div class="col-2">
-                    <button class="btn btn-dark" onclick="fetch_metrics()">Filter</button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-
-<div id="chart" data-config='{"device": 1, "type": "line"}'>
-</div>
-
 <script>
+    let params = [
+        {% for param in params %}
+            '{{ param }}',
+        {% endfor %}
+    ]
+    const charts = document.querySelectorAll('.chart-cont');
+
     function requestMetrics(device, time_from, time_to) {
-        let url = `/api/v1/device/${device}/metrics`;
+        let url = `/api/v1/device/${device}/metrics?group={{ group.pk }}`;
         if (time_from || time_to) {
-            url += "?";
+            url += "&";
         }
         if (time_from !== undefined) {
             url += `from=${time_from}`;
@@ -67,20 +29,19 @@
             });
     }
 
-    const chart = document.getElementById("chart")
+    for (const chart of charts) {
+        const device = chart.id.split('-')[3];
+        const metricSet = requestMetrics(device, undefined, undefined)
 
-    datasets = {}
-
-    const config = JSON.parse(chart["dataset"]["config"]);
-    metricSet = requestMetrics(config["device"], undefined, undefined)
-
-    metricSet.then(data => {
-
-        for (const [metric, value] of Object.entries(data)) {
-            new_graph(metric, value);
-        }
-    })
-
+        metricSet.then(data => {
+            for (const [metric, value] of Object.entries(data)) {
+                if (params.includes(metric) === false) {
+                    continue;
+                }
+                new_graph(chart, metric, value);
+            }
+        })
+    }
 </script>
 
 
@@ -98,17 +59,27 @@
         timeTo.disabled = !timeToBtn.checked;
     });
 
-    function new_graph(metric, value) {
+    function new_graph(chart, metric, value) {
         const newCanvas = document.createElement("canvas");
         newCanvas.id = metric
         chart.appendChild(newCanvas)
 
+        const colors = []
+        for (let i = 0; i < value["color"].length; i++) {
+            if (value["color"][i]) {
+                colors.push("green")
+            } else {
+                colors.push("red")
+            }
+        }
+
         new Chart(newCanvas, {
-            type: config["type"],
+            type: "line",
             data: {
                 labels: value["time"],
                 datasets: [
                     {
+                        backgroundColor: colors,
                         label: metric,
                         data: value["value"]
                     }
@@ -125,28 +96,24 @@
     }
 
     function fetch_metrics() {
-        if (timeFromBtn.checked) {
-            time_from = new Date(timeFrom.value).getTime() / 1000;
-        } else {
-            time_from = undefined;
-        }
+        console.log("fetching metrics")
+        const time_from = timeFromBtn.checked ? new Date(timeFrom.value).getTime() / 1000 : undefined;
+        const time_to = timeToBtn.checked ? new Date(timeTo.value).getTime() / 1000 : undefined;
 
-        if (timeToBtn.checked) {
-            time_to = new Date(timeTo.value).getTime() / 1000;
-        } else {
-            time_to = undefined;
-        }
+        for (const chart of charts) {
+            const device = chart.id.split('-')[3];
+            const metricSet = requestMetrics(device, time_from, time_to)
 
-        metricSet = requestMetrics(config["device"], time_from, time_to)
-
-        metricSet.then(data => {
+            metricSet.then(data => {
                 for (const [metric, value] of Object.entries(data)) {
+                    if (params.includes(metric) === false) {
+                        continue;
+                    }
                     const canvas = document.getElementById(metric);
                     canvas.remove();
-                    new_graph(metric, value);
+                    new_graph(chart, metric, value);
                 }
-            }
-        )
-
+            })
+        }
     }
 </script>

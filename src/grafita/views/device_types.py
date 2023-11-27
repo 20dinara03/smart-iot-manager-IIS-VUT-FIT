@@ -1,14 +1,19 @@
 from django import forms
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, ValidationError
 from django.forms import inlineformset_factory
 from django.http import HttpResponseRedirect
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.views import View
+from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import DetailView, ListView, FormView, UpdateView
 from grafita.models import DeviceType, DeviceTypeParameter
+from grafita.views.mixins import AuthenticatedUserMixin
 
 
 class DeviceTypeForm(forms.ModelForm):
+    admin = forms.HiddenInput()
+
+
     class Meta:
         model = DeviceType
         fields = ['name', 'description']
@@ -29,40 +34,62 @@ class DeviceTypeParameterForm(forms.ModelForm):
         }
 
 
+    def clean(self):
+        cleaned_data = super().clean()
+        min_value = cleaned_data.get('min_value')
+        max_value = cleaned_data.get('max_value')
+        if min_value is not None and max_value is not None:
+            if min_value >= max_value:
+                raise ValidationError('Min value must be less than max value.')
+        return cleaned_data
+
+
 DeviceTypeParameterFormSet = inlineformset_factory(
     DeviceType,
     DeviceTypeParameter,
     form=DeviceTypeParameterForm,
-    can_delete=False,
+    can_delete=True,
     extra=1,
 )
 
 
-class DeleteDeviceTypeView(View):
+class DeleteDeviceTypeView(AuthenticatedUserMixin, View):
     def post(self, request, pk):
         if request.user.is_authenticated:
             device_type = get_object_or_404(DeviceType, pk=pk)
             device_type.delete()
-            return HttpResponseRedirect("/types")
+            return HttpResponseRedirect("/device_types")
         else:
             raise PermissionDenied("User is not authenticated")
 
 
-class UpdateDeviceTypeView(UpdateView):
+@csrf_exempt
+def param_delete(request, id=None):
+    if request.method == 'POST':
+        id_list = request.POST.getlist('instance')
+        # Mark the instances for deletion instead of directly deleting them
+        DeviceTypeParameter.objects.filter(id__in=id_list).delete()
+
+
+class UpdateDeviceTypeView(AuthenticatedUserMixin, UpdateView):
     model = DeviceType
     form_class = DeviceTypeForm
-    template_name = 'device_type_create.html'
-    success_url = '/types'
+    template_name = 'device_type_update.html'
+    success_url = '/device_types'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if self.request.POST:
-            context['parameter_formset'] = DeviceTypeParameterFormSet(self.request.POST, instance=self.object)
+            context['parameter_formset'] = DeviceTypeParameterFormSet(
+                self.request.POST, instance=self.object, prefix='parameter')
         else:
             context['action'] = 'Update'
-            context['parameter_formset'] = DeviceTypeParameterFormSet(instance=self.object,
-                                                                      queryset=DeviceTypeParameter.objects.filter(
-                                                                          device_type=self.object))
+            context['parameter_formset'] = DeviceTypeParameterFormSet(
+                instance=self.object,
+                queryset=DeviceTypeParameter.objects.filter(device_type=self.object),
+                prefix='parameter',
+            )
+
         return context
 
     def form_valid(self, form):
@@ -70,29 +97,26 @@ class UpdateDeviceTypeView(UpdateView):
         parameter_formset = context['parameter_formset']
 
         if parameter_formset and parameter_formset.is_valid():
-            self.object = form.save()  # Save the DeviceType instance
-
-            # Save the parameters
+            self.object = form.save()
             instances = parameter_formset.save(commit=False)
 
-            # Handle deleted parameters
-            for instance in parameter_formset.deleted_objects:
-                instance.delete()
-
-            # Set the DeviceType for the remaining instances
             for instance in instances:
                 instance.device_type = self.object
                 instance.save()
+
+            # Delete parameters marked for deletion
+            for form in parameter_formset.deleted_forms:
+                form.instance.delete()
 
             return HttpResponseRedirect(self.get_success_url())
         else:
             return self.render_to_response(self.get_context_data(form=form))
 
 
-class DeviceTypeCreate(FormView):
+class DeviceTypeCreate(AuthenticatedUserMixin, FormView):
     form_class = DeviceTypeForm
     template_name = 'device_type_create.html'
-    success_url = '/types/'
+    success_url = '/device_types/'
 
     def get_context_data(self, **kwargs):
         if self.request.POST:
@@ -105,6 +129,7 @@ class DeviceTypeCreate(FormView):
         return context
 
     def form_valid(self, form):
+        form.instance.admin = self.request.user
         context = self.get_context_data()
         parameter_formset = context['parameter_formset']
 
@@ -118,17 +143,28 @@ class DeviceTypeCreate(FormView):
                     parameter.device_type = device_type
                     parameter.save()
 
+            # Delete parameters marked for deletion
+            for form in parameter_formset.deleted_forms:
+                form.instance.delete()
+
             return super().form_valid(form)
         else:
             return self.render_to_response(self.get_context_data(form=form))
 
 
-class DeviceTypeList(ListView):
+class DeviceTypeList(AuthenticatedUserMixin, ListView):
     model = DeviceType
     paginate_by = 100
-    template_name = 'types.html'
+    template_name = 'device_types.html'
 
 
-class DeviceTypeDetail(DetailView):
+class DeviceTypeDetail(AuthenticatedUserMixin, DetailView):
     model = DeviceType
     template_name = 'device_type_detail.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        device_type = self.get_object()
+
+        context['is_creator'] = (device_type.admin == self.request.user)
+        return context

@@ -1,0 +1,62 @@
+{% extends "_base.html" %}
+
+{% block title %}Public Device Groups{% endblock %}
+
+{% block content %}
+    <div class="d-flex justify-content-between align-items-center">
+        <h1>Public Device Groups</h1>
+    </div>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-6">
+                <ul class="list-group">
+                    {% for group in groups %}
+                        <li class="list-group-item" onclick="showGroupInfo('{{ group.pk }}')">
+                            {{ group.name }}
+                        </li>
+                    {% empty %}
+                        <div class="row">
+                            <p class="text-center">No groups are there.</p>
+                        </div>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% for group in groups %}
+                <div class="col" hidden="hidden" id="group-info-{{ group.pk }}">
+                    <div id="card" class="card">
+                        <h5 id="card-name" class="card-header">{{ group.name }}</h5>
+                        <div class="row">
+                            <div class="col-8">
+                                <div class="card-body">
+                                    <div style="padding-bottom: 20px">
+                                        {{ group.description }}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="card-footer text-body-secondary">
+                                    <p>Admin: {{ group.admin.username }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <script>
+        let activeGroup = null;
+
+        function showGroupInfo(groupId) {
+            let groupInfoDiv = document.getElementById('group-info-' + groupId);
+            if (activeGroup !== null) {
+                let activeGroupInfoDiv = document.getElementById('group-info-' + activeGroup);
+                activeGroupInfoDiv.hidden = true;
+            }
+            groupInfoDiv.hidden = !groupInfoDiv.hidden;
+            activeGroup = groupId;
+        }
+    </script>
+{% endblock %}

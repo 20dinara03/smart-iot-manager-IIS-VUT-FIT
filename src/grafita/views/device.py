@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, ValidationError
 from django.db.models import Q
 from django.http import HttpResponseForbidden, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
@@ -9,7 +9,7 @@ from django.views import View
 from django.views.decorators.http import require_POST
 from django.views.generic import CreateView, DetailView, ListView, UpdateView
 
-from grafita.models import Device, DevicesGroup
+from grafita.models import Device, DevicesGroup, DeviceType
 from grafita.views.mixins import AuthenticatedUserMixin
 
 
@@ -24,13 +24,26 @@ class DeviceForm(forms.ModelForm):
             'model': forms.TextInput(attrs={'class': 'form-control'}),
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 2}),
             'location': forms.TextInput(attrs={'class': 'form-control'}),
-            'device_type': forms.TextInput(attrs={'class': 'form-control'}),
+            'device_type': forms.Select(attrs={'class': 'form-control'}),
             'device_group': forms.Select(attrs={'class': 'form-control'}),
         }
 
     def __init__(self, *args, request, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['device_group'].queryset = DevicesGroup.objects.filter(admin=request.user)
+        self.fields['device_type'].queryset = DeviceType.objects.all()
+
+    def clean_location(self):
+        location = self.cleaned_data.get('location')
+        if location and not all(char.isalnum() or char.isspace() for char in location):
+            raise ValidationError('The location must contain only letters, numbers, and spaces.')
+        return location
+
+    def clean_model(self):
+        model = self.cleaned_data.get('model')
+        if model and not model.isalnum():
+            raise ValidationError('The model must contain only letters and numbers.')
+        return model
 
 
 class DeviceList(AuthenticatedUserMixin, ListView):
@@ -87,7 +100,7 @@ class DeleteDeviceView(AuthenticatedUserMixin, View):
             raise PermissionDenied("User is not authenticated")
 
 
-class UpdateDeviceView(UpdateView):
+class UpdateDeviceView(AuthenticatedUserMixin, UpdateView):
     model = Device
     form_class = DeviceForm
     template_name = 'edit_device.html'
@@ -123,15 +136,9 @@ class CreateDeviceView(AuthenticatedUserMixin, CreateView):
         kwargs['request'] = self.request
         return kwargs
 
-    def get_context_data(self, **kwargs):
-        kwargs['form'] = None
-        context = super().get_context_data(**kwargs)
-        context["device_form"] = DeviceForm(request=self.request)
-        return context
-
     def form_valid(self, form):
         if not self.request.user.is_authenticated:
-            return HttpResponseForbidden()
+            raise PermissionDenied
 
         data = form.cleaned_data
 
@@ -152,6 +159,9 @@ class CreateDeviceView(AuthenticatedUserMixin, CreateView):
 
         return HttpResponseRedirect("/devices")
 
+    def form_invalid(self, form):
+        return super().form_invalid(form)
+
 
 @login_required
 @require_POST
@@ -159,7 +169,7 @@ def share_device(request, pk):
     device = get_object_or_404(Device, pk=pk)
     used_id = request.POST.get('recipient')
     if used_id is None:
-        return HttpResponseForbidden()
+        raise PermissionDenied
 
     device.can_view.add(User.objects.get(pk=used_id))
     device.save()

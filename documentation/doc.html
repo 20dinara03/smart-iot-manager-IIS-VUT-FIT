@@ -1,0 +1,723 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=iso-8859-2"/>
+    <title>Projekt IIS</title>
+    <style type="text/css">
+        table {
+            border-collapse: collapse;
+        }
+
+        td, th {
+            border: 1px solid black;
+            padding: 0.3em 0.5em;
+            text-align: left;
+        }
+
+        dt {
+            font-weight: bold;
+            margin-top: 0.5em;
+        }
+
+        svg {
+            width: 100%;
+            height: auto;
+            max-width: 100%;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Zkontrolujte prosím nastavení kódování v hlavičce dokumentu 
+     podle použitého editoru -->
+
+<h1>IoT: správa zařízení</h1> <!-- Nahradte názvem svého zadání -->
+
+<dl>
+    <dt>Autoři</dt>
+    <dd>1. Dinara Garipova <!-- Nahraďte skutečným jménem a e-mailem autora a popisem činnosti -->
+        <a href="mailto:xautor01@stud.fit.vutbr.cz">xgarip00@stud.fit.vutbr.cz</a> -
+        popis činnosti v týmu:
+        <p><em>Správa zařízení:</em></p>
+        <ul>
+            <li>Vytváření, úpravy, prohlížení a mazání zařízení.</li>
+            <li>Provedení těchto akcí pomocí implementovaných formulářů.</li>
+            <li>Validace vstupních dat pro zajištění správnosti informací.</li>
+        </ul>
+        <p><em>Správa typu zařízení:</em></p>
+        <ul>
+            <li>Vytváření, úpravy, prohlížení a mazání typů zařízení.</li>
+            <li>Práce s formuláři a jejich validace.</li>
+        </ul>
+        <p><em>Správa skupin zařízení:</em></p>
+        <ul>
+            <li>Vytváření skupin ze stávajících zařízení, úpravy a mazání skupin.</li>
+            <li>Práce s formuláři a jejich validace.</li>
+        </ul>
+        <p><em>Řízení přístupu:</em></p>
+        <ul>
+            <li>Implementace systému oprávnění pro stránky a akce související se zařízeními, typy zařízení a
+                skupinami.
+            </li>
+            <li>Zajištění toho, že na relevantní stránky mají přístup pouze určití uživatelé.</li>
+        </ul>
+        <p><em>Ověření formuláře:</em></p>
+        <ul>
+            <li>Navržení a implementace ověření pro všechny formuláře v aplikaci, abyste zajistili integritu a
+                bezpečnost dat.
+            </li>
+        </ul>
+        <p><em>Stránka pro neregistrované uživatele:</em></p>
+        <ul>
+            <li>Vytvoření samostatné stránky nebo sekce určené pro neregistrované uživatele.</li>
+        </ul>
+        <p><em>Dodatečně:</em></p>
+        <ul>
+            <li>Dokumentace</li>
+            <li>Video</li>
+        </ul>
+    </dd>
+    <dd>2. Mark Barzali <!-- Nahraďte skutečným jménem a e-mailem autora a popisem činnosti -->
+        <a href="mailto:xautor02@stud.fit.vutbr.cz">xbarza00@stud.fit.vutbr.cz</a> -
+        popis činnosti v týmu
+        <p><em>Inicializace a nastavení projektu:</em></p>
+        <ul>
+            <li>Vytvoření úložiště Git pro zajištění správy verzí a spolupráce.</li>
+            <li>Vývoj struktury projektu včetně modulární organizace a definování cest rozvoje.</li>
+            <li>Implementace souboru Docker pro snadnější nasazení a konzistenci prostředí.</li>
+            <li>Organizace databáze s optimalizovaným schématem a indexováním pro vysoký výkon.</li>
+        </ul>
+        <p><em>Vývoj registračního a autentizačního systému:</em></p>
+        <ul>
+            <li>Vytváření pohodlných a bezpečných registračních a přihlašovacích stránek.</li>
+        </ul>
+        <p><em>Uživatelské role:</em></p>
+        <ul>
+            <li>Integrace systému rolí, který umožňuje konfigurovat různé úrovně přístupu a funkčnosti.</li>
+        </ul>
+        <p><em>Klíčové ukazatele výkonu (KPI):</em></p>
+        <ul>
+            <li>Vývoj a implementace nástrojů pro stanovení a sledování KPI, jakož i propojení těchto ukazatelů se
+                systémovými metrikami.
+            </li>
+        </ul>
+        <p><em>Modul makléř a správce:</em></p>
+        <ul>
+            <li>Vytvoření modulu pro správu uživatelů včetně vytváření a správy skupin uživatelů.</li>
+            <li>Implementace funkcionality pro brokera, včetně možnosti měnit a přidávat metriky.</li>
+        </ul>
+        <p><em>Generování a vizualizace metrik:</em></p>
+        <ul>
+            <li>Vývoj kódu pro generování metrik přizpůsobených potřebám uživatele.</li>
+            <li>Implementace dynamických grafů pro vizuální prezentaci dat s možností filtrování podle času.</li>
+        </ul>
+        <p><em>Sdílení a výměna dat:</em></p>
+        <ul>
+            <li>Implementace funkcionality pro výměnu požadavků mezi uživateli systému a monitorování dat.</li>
+            <li>Možnost sdílet přístup k zařízením a také zobrazovat, upravovat a mazat informace o zařízeních po sdílení.</li>
+        </ul>
+        <p><em>Další chybové stránky:</em></p>
+        <ul>
+            <li>Strana 403</li>
+            <li>Strana 404</li>
+        </ul>
+        <p><em>Automatické vypnutí po určité době nečinnosti:</em></p>
+        <ul>
+            <li>Implementace mechanismu pro automatické odhlášení ze systému po určité době nečinnosti uživatele.</li>
+        </ul>
+        <p><em>Dodatečně:</em></p>
+        <ul>
+            <li>Nahrání aplikace na server</li>
+        </ul>
+    </dd>
+    <dt>URL aplikace</dt>
+    <dd><a href="http://www.stud.fit.vutbr.cz/~xautor01/IIS">http://www.stud.fit.vutbr.cz/~xautor01/IIS</a></dd>
+    <dd>(pokud má aplikace více vstupních stránek, napište obdobně další URL)</dd>
+</dl>
+
+<h2>Uživatelé systému pro testování</h2>
+<table>
+    <tr>
+        <th>Login</th>
+        <th>Heslo</th>
+        <th>Role</th>
+    </tr>
+    <tr>
+        <td>admin</td>
+        <td>secret</td>
+        <td>Administrátor</td>
+    </tr>
+    <tr>
+        <td>spravce</td>
+        <td>spravce</td>
+        <td>Správce systému, tvůrce zařízení a typů.</td>
+    </tr>
+    <tr>
+        <td>osoba</td>
+        <td>osoba</td>
+        <td>Osoba s přístupem k určitým zařízením a skupinám.</td>
+    </tr>
+    <tr>
+        <td>broker</td>
+        <td>osoba</td>
+        <td>Broker</td>
+    </tr>
+</table>
+
+<p>Také v systému mohou být neregistrovaní uživatelé.</p>
+
+<h3>Video</h3>
+
+<p>Přiložte odkaz na komentované video demostrující použití informačního systému. Zaměřte se na případy užití definované
+    zadáním (např. registrace uživatele, správa uživatelů a činnosti jednotlivých rolí). Video nahrajte například na VUT
+    Google Drive, kde ho bude možné přímo spustit z odkazu.</p>
+
+<h2>Implementace</h2>
+
+<h3>Struktura a klíčové soubory projektu</h3>
+
+<p>Projekt je strukturován do několika klíčových složek, které obsahují specifické části kódu a konfigurací:</p>
+
+<ul>
+    <li><strong>db:</strong> Obsahuje skripty a kód potřebný pro vytvoření a správu databáze.</li>
+    <li><strong>dbenv:</strong> Zahrnuje konfigurační soubory a proměnné prostředí pro databázi.</li>
+    <li><strong>nats:</strong> Nastavení pro NATS server, což je systém pro výměnu zpráv.</li>
+    <li><strong>scripts:</strong> Kód a nástroje pro práci s metrikami, včetně jejich generování, zpracování a vizualizace.</li>
+    <li><strong>src/grafita:</strong> Tato složka obsahuje backend logiku, datové modely a API. Složka /templates/grafs pak obsahuje frontendové šablony pro grafy.</li>
+    <li><strong>src/templates:</strong> Zde jsou umístěny všechny šablony pro frontend, včetně souborů jako 403.html, 404.html, _base.html, a další.</li>
+    <li><strong>src/core:</strong> Klíčové konfigurační soubory pro nastavení celého projektu v Django.</li>
+    <li><strong>src/mq:</strong> Kód pro Django aplikaci "mq".</li>
+    <li><strong>src/rest:</strong> Aplikace pro práci s REST API.</li>
+</ul>
+
+<h4>Důležité soubory ve složce src</h4>
+
+<p>Výčet a popis důležitých souborů ve složce src:</p>
+
+<ul>
+    <li><strong>apps.py:</strong> Konfiguruje Django aplikaci, specifikuje použití BigAutoField pro automaticky generovaná ID pole.</li>
+    <li><strong>kpi.py:</strong> Definuje základní třídy pro implementaci KPI (Key Performance Indicators) a jejich registraci.</li>
+    <li><strong>models.py:</strong> Obsahuje definice Django modelů jako DevicesGroup, DeviceType, DeviceTypeParameter, Device, KPI, a Metric.</li>
+    <li><strong>urls.py:</strong> Definuje trasy URL pro aplikaci, rozdělené podle různých funkcí a sekcí webu.</li>
+</ul>
+
+<h3>Pohledy (Views) a příslušné soubory</h3>
+
+<p>Ve složce views se nachází soubory pro implementaci konkrétních funkcí aplikace:</p>
+
+<ul>
+    <li><strong>auth.py:</strong> Pohledy pro ověření uživatele, přihlašovací a registrační formuláře.</li>
+    <li><strong>device.py:</strong> Správa CRUD operací pro zařízení, včetně funkcí sdílení.</li>
+    <li><strong>device_groups.py:</strong> Pohledy pro správu skupin zařízení, včetně jejich vytváření, aktualizace a sdílení.</li>
+    <li><strong>device_types.py:</strong> Spravuje CRUD operace pro typy zařízení a jejich parametry.</li>
+    <li><strong>groups.py:</strong> Pohledy pro správu skupin uživatelů a oprávnění.</li>
+    <li><strong>mixins.py:</strong> Mixiny pro autentizaci a přístup personálu.</li>
+    <li><strong>users.py:</strong> Pohledy pro správu uživatelů, včetně zobrazení detailů, aktualizací a správy skupin.</li>
+</ul>
+
+<h3>Frontendové šablony</h3>
+
+<p>V složce src/templates se nachází řada šablon, které definují vzhled a strukturu různých stránek aplikace:</p>
+
+<ul>
+    <li><strong>403.html, 404.html, 403_csrf.html:</strong> Šablony pro chybové stránky.</li>
+    <li><strong>_base.html:</strong> Základní šablona, která slouží jako výchozí pro ostatní šablony.</li>
+    <li><strong>create_device.html, delete_device.html, device_detail.html, devices.html, edit_device.html:</strong> Šablony pro práci s zařízeními.</li>
+    <li><strong>create_device_group.html, device_groups.html, update_device_group.html, delete_device_group.html,device_group_detail.html: </strong> Šablony pro skupiny zařízení.</li>
+    <li><strong>login.html, public_page.html: </strong> Přihlašovací stránka a veřejně přístupná stránka.</li>
+    <li><strong>device_types.html, device_type_create.html, device_type_delete.html,device_type_detail.html, device_type_update.html: </strong>Šablony pro typy zařízení a jejich detaily.</li>
+</ul>
+<p>V složce src/templates/admin se nachází řada šablon, které definují vzhled a strukturu různých stránek aplikace:</p>
+
+<ul>
+    <li><strong>group_detail.html, groups.html:</strong> Šablony pro detaily a přehled skupin.</li>
+    <li><strong>user.html, user_detail.html:</strong> Šablony pro uživatelské stránky a jejich detaily.</li>
+</ul>
+<h3>Databáze</h3>
+<!-- Title: auth_group Pages: 1 -->
+<svg width="100%" height="auto" viewBox="0.00 0.00 1413.11 829.60" preserveAspectRatio="xMinYMin meet"
+     xmlns="http://www.w3.org/2000/svg">
+    <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 825.6)">
+        <title>auth_group</title>
+        <polygon fill="#ffffff" stroke="transparent" points="-4,4 -4,-825.6 1409.1088,-825.6 1409.1088,4 -4,4"/>
+        <!-- auth_group -->
+        <g id="node1" class="node">
+            <title>auth_group</title>
+            <polygon fill="none" stroke="#000000"
+                     points="0,-221.1 0,-295.5 129.4966,-295.5 129.4966,-221.1 0,-221.1"/>
+            <text text-anchor="middle" x="64.7483" y="-278.9" font-family="Times,serif" font-size="14.00"
+                  fill="#000000">auth_group
+            </text>
+            <polyline fill="none" stroke="#000000" points="0,-270.7 129.4966,-270.7 "/>
+            <text text-anchor="start" x="8" y="-254.1" font-family="Times,serif" font-size="14.00" fill="#000000">
+                name : varchar(150)
+            </text>
+            <polyline fill="none" stroke="#000000" points="0,-245.9 129.4966,-245.9 "/>
+            <text text-anchor="start" x="8" y="-229.3" font-family="Times,serif" font-size="14.00" fill="#000000">id
+                : integer
+            </text>
+        </g>
+        <!-- auth_group_permissions -->
+        <g id="node2" class="node">
+            <title>auth_group_permissions</title>
+            <polygon fill="none" stroke="#000000"
+                     points="15.925,-492.1 15.925,-583.3 169.5716,-583.3 169.5716,-492.1 15.925,-492.1"/>
+            <text text-anchor="middle" x="92.7483" y="-566.7" font-family="Times,serif" font-size="14.00"
+                  fill="#000000">auth_group_permissions
+            </text>
+            <polyline fill="none" stroke="#000000" points="15.925,-558.5 169.5716,-558.5 "/>
+            <text text-anchor="start" x="23.925" y="-541.9" font-family="Times,serif" font-size="14.00"
+                  fill="#000000">group_id : integer
+            </text>
+            <text text-anchor="start" x="23.925" y="-525.1" font-family="Times,serif" font-size="14.00"
+                  fill="#000000"> permission_id : integer
+            </text>
+            <polyline fill="none" stroke="#000000" points="15.925,-516.9 169.5716,-516.9 "/>
+            <text text-anchor="start" x="23.925" y="-500.3" font-family="Times,serif" font-size="14.00"
+                  fill="#000000">id : bigint
+            </text>
+        </g>
+        <!-- auth_group_permissions&#45;&gt;auth_group -->
+        <g id="edge1" class="edge">
+            <title>auth_group_permissions&#45;&gt;auth_group</title>
+            <path fill="none" stroke="#595959"
+                  d="M72.7108,-491.8756C72.7108,-491.8756 72.7108,-305.6449 72.7108,-305.6449"/>
+            <polygon fill="#595959" stroke="#595959"
+                     points="76.2109,-305.6448 72.7108,-295.6449 69.2109,-305.6449 76.2109,-305.6448"/>
+            <text text-anchor="middle" x="70.4145" y="-393.8" font-family="Times,serif" font-size="14.00"
+                  fill="#000000">group_id:id
+            </text>
+        </g>
+        <!-- auth_permission -->
+        <g id="node3" class="node">
+            <title>auth_permission</title>
+            <polygon fill="none" stroke="#000000"
+                     points="199.0144,-204.3 199.0144,-312.3 358.4822,-312.3 358.4822,-204.3 199.0144,-204.3"/>
+            <text text-anchor="middle" x="278.7483" y="-295.7" font-family="Times,serif" font-size="14.00"
+                  fill="#000000">auth_permission
+            </text>
+            <polyline fill="none" stroke="#000000" points="199.0144,-287.5 358.4822,-287.5 "/>
+            <text text-anchor="start" x="207.0144" y="-270.9" font-family="Times,serif" font-size="14.00"
+                  fill="#000000">name : varchar(255)
+            </text>
+            <text text-anchor="start" x="207.0144" y="-254.1" font-family="Times,serif" font-size="14.00"
+                  fill="#000000"> content_type_id : integer
+            </text>
+            <text text-anchor="start" x="207.0144" y="-237.3" font-family="Times,serif" font-size="14.00"
+                  fill="#000000"> codename : varchar(100)
+            </text>
+            <polyline fill="none" stroke="#000000" points="199.0144,-229.1 358.4822,-229.1 "/>
+            <text text-anchor="start" x="207.0144" y="-212.5" font-family="Times,serif" font-size="14.00"
+                  fill="#000000">id : integer
+            </text>
+        </g>
+        <!-- auth_group_permissions&#45;&gt;auth_permission -->
+        <g id="edge2" class="edge">
+            <title>auth_group_permissions&#45;&gt;auth_permission</title>
+            <path fill="none" stroke="#595959"
+                  d="M149.5341,-492.0855C149.5341,-424.0745 149.5341,-304 149.5341,-304 149.5341,-304 188.7531,-304 188.7531,-304"/>
+            <polygon fill="#595959" stroke="#595959"
+                     points="188.7531,-307.5001 198.7531,-304 188.753,-300.5001 188.7531,-307.5001"/>
+            <text text-anchor="middle" x="172.8023" y="-393.8" font-family="Times,serif" font-size="14.00"
+                  fill="#000000">permission_id:id
+            </text>
+        </g>
+        <!-- django_content_type -->
+        <g id="node7" class="node">
+            <title>django_content_type</title>
+            <polygon fill="none" stroke="#000000"
+                     points="201.9474,-.5 201.9474,-91.7 355.5492,-91.7 355.5492,-.5 201.9474,-.5"/>
+            <text text-anchor="middle" x="278.7483" y="-75.1" font-family="Times,serif" font-size="14.00"
+                  fill="#000000">django_content_type
+            </text>
+            <polyline fill="none" stroke="#000000" points="201.9474,-66.9 355.5492,-66.9 "/>
+            <text text-anchor="start" x="209.9474" y="-50.3" font-family="Times,serif" font-size="14.00"
+                  fill="#000000">app_label : varchar(100)
+            </text>
+            <text text-anchor="start" x="209.9474" y="-33.5" font-family="Times,serif" font-size="14.00"
+                  fill="#000000"> model : varchar(100)
+            </text>
+            <polyline fill="none" stroke="#000000" points="201.9474,-25.3 355.5492,-25.3 "/>
+            <text text-anchor="start" x="209.9474" y="-8.7" font-family="Times,serif" font-size="14.00"
+                  fill="#000000">id : integer
+            </text>
+        </g>
+        <!-- auth_permission&#45;&gt;django_content_type -->
+        <g id="edge3" class="edge">
+            <title>auth_permission&#45;&gt;django_content_type</title>
+            <path fill="none" stroke="#595959"
+                  d="M278.7483,-204.2039C278.7483,-204.2039 278.7483,-101.8371 278.7483,-101.8371"/>
+            <polygon fill="#595959" stroke="#595959"
+                     points="282.2484,-101.8371 278.7483,-91.8371 275.2484,-101.8372 282.2484,-101.8371"/>
+            <text text-anchor="middle" x="331.242" y="-114.4" font-family="Times,serif" font-size="14.00"
+                  fill="#000000">content_type_id:id
+            </text>
+        </g>
+        <!-- auth_user -->
+        <g id="node4" class="node">
+            <title>auth_user</title>
+            <polygon fill="none" stroke="#000000"
+                     points="402.3801,-145.5 402.3801,-371.1 643.1165,-371.1 643.1165,-145.5 402.3801,-145.5"/>
+            <text text-anchor="middle" x="522.7483" y="-354.5" font-family="Times,serif" font-size="14.00"
+                  fill="#000000">auth_user
+            </text>
+            <polyline fill="none" stroke="#000000" points="402.3801,-346.3 643.1165,-346.3 "/>
+            <text text-anchor="start" x="410.3801" y="-329.7" font-family="Times,serif" font-size="14.00"
+                  fill="#000000">password : varchar(128)
+            </text>
+            <text text-anchor="start" x="410.3801" y="-312.9" font-family="Times,serif" font-size="14.00"
+                  fill="#000000"> last_login : timestamp with time zone
+            </text>
+            <text text-anchor="start" x="410.3801" y="-296.1" font-family="Times,serif" font-size="14.00"
+                  fill="#000000"> is_superuser : boolean
+            </text>
+            <text text-anchor="start" x="410.3801" y="-279.3" font-family="Times,serif" font-size="14.00"
+                  fill="#000000"> username : varchar(150)
+            </text>
+            <text text-anchor="start" x="410.3801" y="-262.5" font-family="Times,serif" font-size="14.00"
+                  fill="#000000"> first_name : varchar(150)
+            </text>
+            <text text-anchor="start" x="410.3801" y="-245.7" font-family="Times,serif" font-size="14.00"
+                  fill="#000000"> last_name : varchar(150)
+            </text>
+            <text text-anchor="start" x="410.3801" y="-228.9" font-family="Times,serif" font-size="14.00"
+                  fill="#000000"> email : varchar(254)
+            </text>
+            <text text-anchor="start" x="410.3801" y="-212.1" font-family="Times,serif" font-size="14.00"
+                  fill="#000000"> is_staff : boolean
+            </text>
+            <text text-anchor="start" x="410.3801" y="-195.3" font-family="Times,serif" font-size="14.00"
+                  fill="#000000"> is_active : boolean
+            </text>
+            <text text-anchor="start" x="410.3801" y="-178.5" font-family="Times,serif" font-size="14.00"
+                  fill="#000000"> date_joined : timestamp with time zone
+            </text>
+            <polyline fill="none" stroke="#000000" points="402.3801,-170.3 643.1165,-170.3 "/>
+            <text text-anchor="start" x="410.3801" y="-153.7" font-family="Times,serif" font-size="14.00"
+                  fill="#000000">id : integer
+            </text>
+        </g>
+        <!-- auth_user_groups -->
+        <g id="node5" class="node">
+            <title>auth_user_groups</title>
+            <polygon fill="none" stroke="#000000"
+                     points="212.8419,-492.1 212.8419,-583.3 332.6547,-583.3 332.6547,-492.1 212.8419,-492.1"/>
+            <text text-anchor="middle" x="272.7483" y="-566.7" font-family="Times,serif" font-size="14.00"
+                  fill="#000000">auth_user_groups
+            </text>
+            <polyline fill="none" stroke="#000000" points="212.8419,-558.5 332.6547,-558.5 "/>
+            <text text-anchor="start" x="220.8419" y="-541.9" font-family="Times,serif" font-size="14.00"
+                  fill="#000000">user_id : integer
+            </text>
+            <text text-anchor="start" x="220.8419" y="-525.1" font-family="Times,serif" font-size="14.00"
+                  fill="#000000"> group_id : integer
+            </text>
+            <polyline fill="none" stroke="#000000" points="212.8419,-516.9 332.6547,-516.9 "/>
+            <text text-anchor="start" x="220.8419" y="-500.3" font-family="Times,serif" font-size="14.00"
+                  fill="#000000">id : bigint
+            </text>
+        </g>
+        <!-- auth_user_groups&#45;&gt;auth_group -->
+        <g id="edge4" class="edge">
+            <title>auth_user_groups&#45;&gt;auth_group</title>
+            <path fill="none" stroke="#595959"
+                  d="M212.7677,-537C196.9925,-537 184.293,-537 184.293,-537 184.293,-537 184.293,-258 184.293,-258 184.293,-258 139.7681,-258 139.7681,-258"/>
+            <polygon fill="#595959" stroke="#595959"
+                     points="139.7681,-254.5001 129.7681,-258 139.768,-261.5001 139.7681,-254.5001"/>
+            <text text-anchor="middle" x="275.4145" y="-393.8" font-family="Times,serif" font-size="14.00"
+                  fill="#000000">group_id:id
+            </text>
+        </g>
+        <!-- auth_user_groups&#45;&gt;auth_user -->
+        <g id="edge5" class="edge">
+            <title>auth_user_groups&#45;&gt;auth_user</title>
+            <path fill="none" stroke="#595959"
+                  d="M272.7483,-491.817C272.7483,-433.974 272.7483,-342 272.7483,-342 272.7483,-342 392.142,-342 392.142,-342"/>
+            <polygon fill="#595959" stroke="#595959"
+                     points="392.1421,-345.5001 402.142,-342 392.142,-338.5001 392.1421,-345.5001"/>
+            <text text-anchor="middle" x="358.7441" y="-393.8" font-family="Times,serif" font-size="14.00"
+                  fill="#000000">user_id:id
+            </text>
+        </g>
+        <!-- auth_user_user_permissions -->
+        <g id="node6" class="node">
+            <title>auth_user_user_permissions</title>
+            <polygon fill="none" stroke="#000000"
+                     points="380.4355,-492.1 380.4355,-583.3 555.0611,-583.3 555.0611,-492.1 380.4355,-492.1"/>
+            <text text-anchor="middle" x="467.7483" y="-566.7" font-family="Times,serif" font-size="14.00"
+                  fill="#000000">auth_user_user_permissions
+            </text>
+            <polyline fill="none" stroke="#000000" points="380.4355,-558.5 555.0611,-558.5 "/>
+            <text text-anchor="start" x="388.4355" y="-541.9" font-family="Times,serif" font-size="14.00"
+                  fill="#000000">user_id : integer
+            </text>
+            <text text-anchor="start" x="388.4355" y="-525.1" font-family="Times,serif" font-size="14.00"
+                  fill="#000000"> permission_id : integer
+            </text>
+            <polyline fill="none" stroke="#000000" points="380.4355,-516.9 555.0611,-516.9 "/>
+            <text text-anchor="start" x="388.4355" y="-500.3" font-family="Times,serif" font-size="14.00"
+                  fill="#000000">id : bigint
+            </text>
+        </g>
+        <!-- auth_user_user_permissions&#45;&gt;auth_permission -->
+        <g id="edge6" class="edge">
+            <title>auth_user_user_permissions&#45;&gt;auth_permission</title>
+            <path fill="none" stroke="#595959"
+                  d="M380.2535,-537C360.6694,-537 345.5685,-537 345.5685,-537 345.5685,-537 345.5685,-322.3666 345.5685,-322.3666"/>
+            <polygon fill="#595959" stroke="#595959"
+                     points="349.0685,-322.3666 345.5685,-312.3666 342.0685,-322.3667 349.0685,-322.3666"/>
+            <text text-anchor="middle" x="456.8023" y="-393.8" font-family="Times,serif" font-size="14.00"
+                  fill="#000000">permission_id:id
+            </text>
+        </g>
+        <!-- auth_user_user_permissions&#45;&gt;auth_user -->
+        <g id="edge7" class="edge">
+            <title>auth_user_user_permissions&#45;&gt;auth_user</title>
+            <path fill="none" stroke="#595959"
+                  d="M478.7206,-491.8756C478.7206,-491.8756 478.7206,-381.3956 478.7206,-381.3956"/>
+            <polygon fill="#595959" stroke="#595959"
+                     points="482.2207,-381.3956 478.7206,-371.3956 475.2207,-381.3956 482.2207,-381.3956"/>
+            <text text-anchor="middle" x="554.7441" y="-393.8" font-family="Times,serif" font-size="14.00"
+                  fill="#000000">user_id:id
+            </text>
+        </g>
+        <!-- grafita_device -->
+        <g id="node10" class="node">
+            <title>grafita_device</title>
+            <polygon fill="none" stroke="#000000"
+                     points="719.3801,-424.9 719.3801,-650.5 904.1165,-650.5 904.1165,-424.9 719.3801,-424.9"/>
+            <text text-anchor="middle" x="811.7483" y="-633.9" font-family="Times,serif" font-size="14.00"
+                  fill="#000000">grafita_device
+            </text>
+            <polyline fill="none" stroke="#000000" points="719.3801,-625.7 904.1165,-625.7 "/>
+            <text text-anchor="start" x="727.3801" y="-609.1" font-family="Times,serif" font-size="14.00"
+                  fill="#000000">name : varchar(100)
+            </text>
+            <text text-anchor="start" x="727.3801" y="-592.3" font-family="Times,serif" font-size="14.00"
+                  fill="#000000"> model : varchar(100)
+            </text>
+            <text text-anchor="start" x="727.3801" y="-575.5" font-family="Times,serif" font-size="14.00"
+                  fill="#000000"> description : text
+            </text>
+            <text text-anchor="start" x="727.3801" y="-558.7" font-family="Times,serif" font-size="14.00"
+                  fill="#000000"> location : varchar(100)
+            </text>
+            <text text-anchor="start" x="727.3801" y="-541.9" font-family="Times,serif" font-size="14.00"
+                  fill="#000000"> value_min : double precision
+            </text>
+            <text text-anchor="start" x="727.3801" y="-525.1" font-family="Times,serif" font-size="14.00"
+                  fill="#000000"> value_max : double precision
+            </text>
+            <text text-anchor="start" x="727.3801" y="-508.3" font-family="Times,serif" font-size="14.00"
+                  fill="#000000"> created_by_id : integer
+            </text>
+            <text text-anchor="start" x="727.3801" y="-491.5" font-family="Times,serif" font-size="14.00"
+                  fill="#000000"> default_kpi_id : bigint
+            </text>
+            <text text-anchor="start" x="727.3801" y="-474.7" font-family="Times,serif" font-size="14.00"
+                  fill="#000000"> device_group_id : bigint
+            </text>
+            <text text-anchor="start" x="727.3801" y="-457.9" font-family="Times,serif" font-size="14.00"
+                  fill="#000000"> device_type_id : bigint
+            </text>
+            <polyline fill="none" stroke="#000000" points="719.3801,-449.7 904.1165,-449.7 "/>
+            <text text-anchor="start" x="727.3801" y="-433.1" font-family="Times,serif" font-size="14.00"
+                  fill="#000000">id : bigint
+            </text>
+        </g>
+        <!-- grafita_device&#45;&gt;auth_user -->
+        <g id="edge8" class="edge">
+            <title>grafita_device&#45;&gt;auth_user</title>
+            <path fill="none" stroke="#595959"
+                  d="M748.5401,-424.7108C748.5401,-381.3203 748.5401,-342 748.5401,-342 748.5401,-342 653.2463,-342 653.2463,-342"/>
+            <polygon fill="#595959" stroke="#595959"
+                     points="653.2464,-338.5001 643.2463,-342 653.2463,-345.5001 653.2464,-338.5001"/>
+            <text text-anchor="middle" x="659.789" y="-393.8" font-family="Times,serif" font-size="14.00"
+                  fill="#000000">created_by_id:id
+            </text>
+        </g>
+        <!-- grafita_devicegroup -->
+        <g id="node11" class="node">
+            <title>grafita_devicegroup</title>
+            <polygon fill="none" stroke="#000000"
+                     points="825,-212.7 825,-303.9 954.4966,-303.9 954.4966,-212.7 825,-212.7"/>
+            <text text-anchor="middle" x="889.7483" y="-287.3" font-family="Times,serif" font-size="14.00"
+                  fill="#000000">grafita_devicegroup
+            </text>
+            <polyline fill="none" stroke="#000000" points="825,-279.1 954.4966,-279.1 "/>
+            <text text-anchor="start" x="833" y="-262.5" font-family="Times,serif" font-size="14.00" fill="#000000">
+                name : varchar(100)
+            </text>
+            <text text-anchor="start" x="833" y="-245.7" font-family="Times,serif" font-size="14.00" fill="#000000">
+                description : text
+            </text>
+            <polyline fill="none" stroke="#000000" points="825,-237.5 954.4966,-237.5 "/>
+            <text text-anchor="start" x="833" y="-220.9" font-family="Times,serif" font-size="14.00" fill="#000000">
+                id : bigint
+            </text>
+        </g>
+        <!-- grafita_device&#45;&gt;grafita_devicegroup -->
+        <g id="edge9" class="edge">
+            <title>grafita_device&#45;&gt;grafita_devicegroup</title>
+            <path fill="none" stroke="#595959"
+                  d="M864.5583,-424.8627C864.5583,-424.8627 864.5583,-314.1353 864.5583,-314.1353"/>
+            <polygon fill="#595959" stroke="#595959"
+                     points="868.0583,-314.1353 864.5583,-304.1353 861.0583,-314.1354 868.0583,-314.1353"/>
+            <text text-anchor="middle" x="926.1817" y="-393.8" font-family="Times,serif" font-size="14.00"
+                  fill="#000000">device_group_id:id
+            </text>
+        </g>
+        <!-- grafita_devicetype -->
+        <g id="node12" class="node">
+            <title>grafita_devicetype</title>
+            <polygon fill="none" stroke="#000000"
+                     points="1016.9509,-204.3 1016.9509,-312.3 1184.5457,-312.3 1184.5457,-204.3 1016.9509,-204.3"/>
+            <text text-anchor="middle" x="1100.7483" y="-295.7" font-family="Times,serif" font-size="14.00"
+                  fill="#000000">grafita_devicetype
+            </text>
+            <polyline fill="none" stroke="#000000" points="1016.9509,-287.5 1184.5457,-287.5 "/>
+            <text text-anchor="start" x="1024.9509" y="-270.9" font-family="Times,serif" font-size="14.00"
+                  fill="#000000">name : varchar(100)
+            </text>
+            <text text-anchor="start" x="1024.9509" y="-254.1" font-family="Times,serif" font-size="14.00"
+                  fill="#000000"> description : text
+            </text>
+            <text text-anchor="start" x="1024.9509" y="-237.3" font-family="Times,serif" font-size="14.00"
+                  fill="#000000"> attributes : varchar(100) []
+            </text>
+            <polyline fill="none" stroke="#000000" points="1016.9509,-229.1 1184.5457,-229.1 "/>
+            <text text-anchor="start" x="1024.9509" y="-212.5" font-family="Times,serif" font-size="14.00"
+                  fill="#000000">id : bigint
+            </text>
+        </g>
+        <!-- grafita_device&#45;&gt;grafita_devicetype -->
+        <g id="edge10" class="edge">
+            <title>grafita_device&#45;&gt;grafita_devicetype</title>
+            <path fill="none" stroke="#595959"
+                  d="M904.321,-453C962.9656,-453 1027.8166,-453 1027.8166,-453 1027.8166,-453 1027.8166,-322.5348 1027.8166,-322.5348"/>
+            <polygon fill="#595959" stroke="#595959"
+                     points="1031.3167,-322.5348 1027.8166,-312.5348 1024.3167,-322.5348 1031.3167,-322.5348"/>
+            <text text-anchor="middle" x="1053.904" y="-393.8" font-family="Times,serif" font-size="14.00"
+                  fill="#000000">device_type_id:id
+            </text>
+        </g>
+        <!-- grafita_kpi -->
+        <g id="node14" class="node">
+            <title>grafita_kpi</title>
+            <polygon fill="none" stroke="#000000"
+                     points="660.6364,-212.7 660.6364,-303.9 806.8602,-303.9 806.8602,-212.7 660.6364,-212.7"/>
+            <text text-anchor="middle" x="733.7483" y="-287.3" font-family="Times,serif" font-size="14.00"
+                  fill="#000000">grafita_kpi
+            </text>
+            <polyline fill="none" stroke="#000000" points="660.6364,-279.1 806.8602,-279.1 "/>
+            <text text-anchor="start" x="668.6364" y="-262.5" font-family="Times,serif" font-size="14.00"
+                  fill="#000000">name : varchar(100)
+            </text>
+            <text text-anchor="start" x="668.6364" y="-245.7" font-family="Times,serif" font-size="14.00"
+                  fill="#000000"> value : numeric(6,2) []
+            </text>
+            <polyline fill="none" stroke="#000000" points="660.6364,-237.5 806.8602,-237.5 "/>
+            <text text-anchor="start" x="668.6364" y="-220.9" font-family="Times,serif" font-size="14.00"
+                  fill="#000000">id : bigint
+            </text>
+        </g>
+        <!-- grafita_device&#45;&gt;grafita_kpi -->
+        <g id="edge11" class="edge">
+            <title>grafita_device&#45;&gt;grafita_kpi</title>
+            <path fill="none" stroke="#595959"
+                  d="M777.7002,-424.8627C777.7002,-424.8627 777.7002,-314.1353 777.7002,-314.1353"/>
+            <polygon fill="#595959" stroke="#595959"
+                     points="781.2003,-314.1353 777.7002,-304.1353 774.2003,-314.1354 781.2003,-314.1353"/>
+            <text text-anchor="middle" x="781.965" y="-393.8" font-family="Times,serif" font-size="14.00"
+                  fill="#000000">default_kpi_id:id
+            </text>
+        </g>
+        <!-- grafita_devicetypeparameter -->
+        <g id="node13" class="node">
+            <title>grafita_devicetypeparameter</title>
+            <polygon fill="none" stroke="#000000"
+                     points="1038.6823,-483.7 1038.6823,-591.7 1214.8143,-591.7 1214.8143,-483.7 1038.6823,-483.7"/>
+            <text text-anchor="middle" x="1126.7483" y="-575.1" font-family="Times,serif" font-size="14.00"
+                  fill="#000000">grafita_devicetypeparameter
+            </text>
+            <polyline fill="none" stroke="#000000" points="1038.6823,-566.9 1214.8143,-566.9 "/>
+            <text text-anchor="start" x="1046.6823" y="-550.3" font-family="Times,serif" font-size="14.00"
+                  fill="#000000">name : varchar(100)
+            </text>
+            <text text-anchor="start" x="1046.6823" y="-533.5" font-family="Times,serif" font-size="14.00"
+                  fill="#000000"> values : double precision[]
+            </text>
+            <text text-anchor="start" x="1046.6823" y="-516.7" font-family="Times,serif" font-size="14.00"
+                  fill="#000000"> device_type_id : bigint
+            </text>
+            <polyline fill="none" stroke="#000000" points="1038.6823,-508.5 1214.8143,-508.5 "/>
+            <text text-anchor="start" x="1046.6823" y="-491.9" font-family="Times,serif" font-size="14.00"
+                  fill="#000000">id : bigint
+            </text>
+        </g>
+        <!-- grafita_devicetypeparameter&#45;&gt;grafita_devicetype -->
+        <g id="edge12" class="edge">
+            <title>grafita_devicetypeparameter&#45;&gt;grafita_devicetype</title>
+            <path fill="none" stroke="#595959"
+                  d="M1111.614,-483.4976C1111.614,-483.4976 1111.614,-322.3516 1111.614,-322.3516"/>
+            <polygon fill="#595959" stroke="#595959"
+                     points="1115.1141,-322.3515 1111.614,-312.3516 1108.1141,-322.3516 1115.1141,-322.3515"/>
+            <text text-anchor="middle" x="1176.904" y="-393.8" font-family="Times,serif" font-size="14.00"
+                  fill="#000000">device_type_id:id
+            </text>
+        </g>
+        <!-- grafita_metric -->
+        <g id="node15" class="node">
+            <title>grafita_metric</title>
+            <polygon fill="none" stroke="#000000"
+                     points="711.5947,-704.3 711.5947,-821.1 911.9019,-821.1 911.9019,-704.3 711.5947,-704.3"/>
+            <text text-anchor="middle" x="811.7483" y="-804.5" font-family="Times,serif" font-size="14.00"
+                  fill="#000000">grafita_metric
+            </text>
+            <polyline fill="none" stroke="#000000" points="711.5947,-796.3 911.9019,-796.3 "/>
+            <text text-anchor="start" x="719.5947" y="-779.7" font-family="Times,serif" font-size="14.00"
+                  fill="#000000">id : bigint
+            </text>
+            <text text-anchor="start" x="719.5947" y="-762.9" font-family="Times,serif" font-size="14.00"
+                  fill="#000000"> time : timestamp with time zone
+            </text>
+            <text text-anchor="start" x="719.5947" y="-746.1" font-family="Times,serif" font-size="14.00"
+                  fill="#000000"> value : double precision
+            </text>
+            <text text-anchor="start" x="719.5947" y="-729.3" font-family="Times,serif" font-size="14.00"
+                  fill="#000000"> attribute : varchar(100)
+            </text>
+            <text text-anchor="start" x="719.5947" y="-712.5" font-family="Times,serif" font-size="14.00"
+                  fill="#000000"> device_id : bigint
+            </text>
+        </g>
+        <!-- grafita_metric&#45;&gt;grafita_device -->
+        <g id="edge13" class="edge">
+            <title>grafita_metric&#45;&gt;grafita_device</title>
+            <path fill="none" stroke="#595959"
+                  d="M811.7483,-704.1713C811.7483,-704.1713 811.7483,-660.9132 811.7483,-660.9132"/>
+            <polygon fill="#595959" stroke="#595959"
+                     points="815.2484,-660.9132 811.7483,-650.9132 808.2484,-660.9133 815.2484,-660.9132"/>
+            <text text-anchor="middle" x="846.3514" y="-673.2" font-family="Times,serif" font-size="14.00"
+                  fill="#000000">device_id:id
+            </text>
+        </g>
+    </g>
+</svg>
+
+<h2>Instalace</h2>
+
+Stručně popište:
+<ul>
+    <li>postup instalace na server,</li>
+    <li>softwarové požadavky (verze PHP apod.),</li>
+    <li>jak rozbalit, konfigurovat, inicializovat databázi, ...</li>
+</ul>
+
+<h2>Známé problémy</h2>
+<p>Na backendu a frontendu jsou různá nastavení UTC.</p>
+
+</body>
+</html>

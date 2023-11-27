@@ -22,7 +22,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ["SECRET_KEY"]
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get("DEBUG", False)
+DEBUG = False
 
 ALLOWED_HOSTS = ["*"]
 
@@ -103,10 +103,15 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
-
+#
 LANGUAGE_CODE = "en-us"
+#
+# TIME_ZONE = "UTC"
+# set timezone to UTC+1 (czech republic)
+TIME_ZONE = "Europe/Prague"
 
-TIME_ZONE = "UTC"
+SESSION_COOKIE_AGE = 60 * 10  # 10 minutes
+SESSION_SAVE_EVERY_REQUEST = True
 
 USE_I18N = True
 

@@ -1,54 +1,50 @@
 {% extends "_base.html" %}
-
 {% block content %}
-  <div class="container">
-    <div class="row">
-      <div class="col-md-8">
-        <h1 class="my-4">Device Type Details: {{ object.name }}</h1>
-
-        <div class="card">
-          <div class="card-body">
-            <h5 class="card-title">Name:</h5>
-            <p class="card-text">{{ object.name }}</p>
-          </div>
-        </div>
-
-        <div class="card my-3">
-          <div class="card-body">
-            <h5 class="card-title">Description:</h5>
-            <p class="card-text">{{ object.description }}</p>
-          </div>
-        </div>
-
-        <div class="card my-3">
-          <div class="card-body">
-            <h5 class="card-title">Parameters:</h5>
-            <ul class="list-group list-group-flush">
-              {% for parameter in object.devicetypeparameter_set.all %}
-                <li class="list-group-item">
-                  <strong>Parameter Name:</strong> {{ parameter.name }}<br>
-                  <strong>Minimum Value:</strong> {{ parameter.min_value }}<br>
-                  <strong>Maximum Value:</strong> {{ parameter.max_value }}<br>
-                </li>
-              {% endfor %}
-            </ul>
-          </div>
-        </div>
-
-        <div class="row">
-          <div class="col-md-12">
-            <h3>Actions</h3>
+    <div class="card">
+        <div class="card-body">
+            <h2 class="card-title">Device Type Details</h2>
             <hr>
-            <a href="{% url 'edit_device_type' object.pk %}" class="btn btn-primary">Edit</a>
-            <form method="post" action="/device_type/{{ object.id }}/delete/">
-              {% csrf_token %}
-              <button type="submit" class="btn btn-danger">Delete Device</button>
-            </form>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
 
-  <a href="{% url 'types' %}" class="btn btn-secondary my-4">Back to Device Type List</a>
+            <div class="row">
+                <div class="col-md-6">
+                    <p><strong>Name:</strong> {{ object.name }}</p>
+                    <p><strong>Description:</strong> {{ object.description }}</p>
+                </div>
+
+                <div class="col-md-6">
+                    <h5 class="card-title">Parameters:</h5>
+                    {% for parameter in object.devicetypeparameter_set.all %}
+                        <p><strong>Parameter Name:</strong> {{ parameter.name }}</p>
+                        <p><strong>Minimum Value:</strong> {{ parameter.min_value }}</p>
+                        <p><strong>Maximum Value:</strong> {{ parameter.max_value }}</p>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <h3>Actions</h3>
+                    <hr>
+                    <div class="container d-flex justify-content-between">
+                          {% if is_creator %}
+                            <a href="{% url 'edit_device_type' object.pk %}" class="btn btn-primary">Edit</a>
+                            <form method="post" action="/device_type/{{ object.id }}/delete/">
+                              {% csrf_token %}
+                              <button type="submit" class="btn btn-danger">Delete Device Type</button>
+                            </form>
+                          {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+  <a href="{% url 'device_types' %}" class="btn btn-secondary my-4">Back to Device Type List</a>
 {% endblock %}
+
+{% block script %}
+
+    <script>
+
+    </script>
+{% endblock %}
+
+

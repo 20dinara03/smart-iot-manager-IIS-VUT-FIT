@@ -1,14 +1,15 @@
 from django.contrib.auth.models import Group, User
 from django.shortcuts import redirect
 from django.views.generic import DetailView, ListView
+from grafita.views.mixins import StaffMixin
 
 
-class Users(ListView):
+class Users(StaffMixin, ListView):
     model = User
     template_name = 'admin/user.html'
 
 
-class UserDetail(DetailView):
+class UserDetail(StaffMixin, DetailView):
     model = User
     template_name = 'admin/user_detail.html'
 
@@ -38,7 +39,7 @@ class UserDetail(DetailView):
 
 
 def update_user_groups(request, pk: int):
-    user: User = User.objects.get(device_pk=pk)
+    user: User = User.objects.get(id=pk)
     data = request.POST
     groups_id: list[int] = data.getlist('groups')
     groups: list[Group] = Group.objects.filter(pk__in=groups_id)

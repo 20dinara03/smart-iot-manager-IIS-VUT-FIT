@@ -4,10 +4,11 @@ from .views import (AuthenticationLoginView, AuthenticationRegisterView, Concret
                     DeviceDetail, DeviceList, GroupList, logout, update_user_groups, UserDetail, Users,
                     DeleteDeviceView,
                     UpdateDeviceView, DeviceTypeCreate, DeviceTypeList, DeviceTypeDetail, DeleteDeviceTypeView,
-                    UpdateDeviceTypeView, DeviceGroupListCreateView, CreateDeviceGroupView, DeviceGroupDetailView,
+                    UpdateDeviceTypeView, DeviceGroupListView, CreateDeviceGroupView, DeviceGroupDetailView,
                     DeleteDeviceGroupView, UpdateDeviceGroupView)
 from .views.device import share_device
-from .views.device_groups import share_group
+from .views.device_groups import share_group, public_device_group_list
+from .views.device_types import param_delete
 
 urls = [
     path("dashboard/", Dashboard.as_view(), name="dashboard"),
@@ -31,12 +32,13 @@ urls = [
     path("user/<pk>/groups", update_user_groups),
     # types
     path('device_type_create/', DeviceTypeCreate.as_view(), name='device_type_create'),
-    path('types/', DeviceTypeList.as_view(), name='types'),
+    path('device_types/', DeviceTypeList.as_view(), name='device_types'),
     path('device_type_detail/<int:pk>/', DeviceTypeDetail.as_view(), name='device_type_detail'),
     path('device_type/<int:pk>/delete/', DeleteDeviceTypeView.as_view(), name='device_type_delete'),
     path('device_type/<int:pk>/edit/', UpdateDeviceTypeView.as_view(), name='edit_device_type'),
+    path('param_delete/<int:id>/', param_delete, name='param_delete'),
     # device_groups
-    path('device_groups/', DeviceGroupListCreateView.as_view(), name='device_groups'),
+    path('device_groups/', DeviceGroupListView.as_view(), name='device_groups'),
     path('create_device_group/', CreateDeviceGroupView.as_view(), name='create_device_group'),
     path('device_groups/<int:pk>/', DeviceGroupDetailView.as_view(), name='device_group_detail'),
     path('device_groups/<int:pk>/update/', UpdateDeviceGroupView.as_view(), name='update_device_group'),
@@ -44,4 +46,8 @@ urls = [
     # share device
     path('share_device/<int:pk>/', share_device, name='share_device'),
     path('share_group/<int:pk>/', share_group, name='share_group'),
+    # public
+    path('public_page/', public_device_group_list, name='public_device_group_list'),
+    # redirect / to /dashboard
+    path('', DeviceList.as_view(), name='dashboard'),
 ]

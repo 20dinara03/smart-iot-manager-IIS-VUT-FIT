@@ -2,6 +2,10 @@
 
 {% block title %} Device Group Detail {% endblock %}
 
+{% block jquery %}
+    {% include 'grafs/_graf.html' %}
+{% endblock %}
+
 {% block content %}
     <a href="{% url 'device_groups' %}" class="btn btn-sm` mt-3"> << Back to Device Groups</a>
 
@@ -23,7 +27,6 @@
             </div>
             <div class="col-2"></div>
             <div class="col-5">
-
                 <div class="container">
                     <div class="card">
                         <div class="card-header">
@@ -35,8 +38,10 @@
                             <div class="row">
                                 <div class="d-flex justify-content-between">
                                     <div class="col d-flex justify-content-start">
-                                        <a href="{% url 'update_device_group' group.pk %}"
-                                           class="btn btn-primary">Edit</a>
+                                        {% if can_edit_or_delete %}
+                                            <a href="{% url 'update_device_group' group.pk %}"
+                                               class="btn btn-primary">Edit</a>
+                                        {% endif %}
                                         <!-- Button trigger modal -->
                                         {% if can_share %}
                                             <div class="mx-2"></div>
@@ -47,24 +52,123 @@
                                         {% endif %}
                                     </div>
                                     <div class="col d-flex justify-content-end">
-                                        <form method="post" action="{% url 'delete_device_group' group.pk %}"
-                                              class="d-inline">
-                                            {% csrf_token %}
-                                            <input type="hidden" name="action" value="delete">
-                                            <button type="submit" class="btn btn-danger">Delete</button>
-                                        </form>
+                                        {% if can_edit_or_delete %}
+                                            <form method="post" action="{% url 'delete_device_group' group.pk %}"
+                                                  class="d-inline">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="action" value="delete">
+                                                <button type="submit" class="btn btn-danger">Delete</button>
+                                            </form>
+                                        {% endif %}
                                     </div>
                                 </div>
+                                {% if user == group.admin %}
+                                    {% if group.requested_by %}
+                                        <div class="row">
+                                            <br>
+                                            <h5>Users requested access to this group</h5>
+                                            <ul class="list-group list-group-flush">
+                                                {% for user in group.requested_by.all %}
+                                                    <li class="list-group-item">
+                                                        <div class="container d-flex justify-content-between">
+                                                            <p>{{ user.username }}</p>
+                                                            <form method="post" action="">
+                                                                {% csrf_token %}
+                                                                <label for="action">
+                                                                    <input name="action" value="grant" hidden="hidden">
+                                                                </label>
+                                                                <label>
+                                                                    <input name="user" value="{{ user.pk }}"
+                                                                           hidden="hidden">
+                                                                </label>
+                                                                <button class="btn btn-sm btn-primary">Grant Access
+                                                                </button>
+                                                            </form>
+                                                        </div>
+                                                    </li>
+                                                    {% empty %}
+                                                    Hmm... no users.
+                                                {% endfor %}
+                                            </ul>
+                                        </div>
+                                    {% endif %}
+                                {% endif %}
                             </div>
                         </div>
                         <div class="card-footer text-body-secondary">
                             Admin: {{ group.admin.username }}
                         </div>
                     </div>
-
-
                 </div>
             </div>
+        </div>
+    </div>
+    <div class="row">
+        <h2>KPIs for this Group</h2>
+        <ul class="list-group list-group-flush">
+            {% for kpi in kpis %}
+                <li class="list-group-item">
+                    <blockquote class="blockquote mb-0">
+                        <p style="font-weight: bold; color: black;">{{ kpi.class_name }}</p>
+                        <p style="font-style: italic; color: #6c757d;">Parameter: {{ kpi.parameter.name }}</p>
+                        <p style="font-size: 18px; color: #28a745;">Value: {{ kpi.value }}</p>
+                    </blockquote>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div class="row">
+
+        <time datetime="1914-12-20 08:30:45.687"></time>
+
+        <p class="d-inline-flex gap-1">
+            <a class="btn btn-primary" data-bs-toggle="collapse" href="#collapseExample" role="button"
+               aria-expanded="false"
+               aria-controls="collapseExample">
+                Filter by time
+            </a>
+        </p>
+        <div class="collapse" id="collapseExample">
+            <div class="card card-body">
+                <div class="container">
+                    <div class="row py-1">
+                        <div class="col-2">
+                            <input type="checkbox" class="btn-check" id="timeFromBtn" autocomplete="off">
+                            <label class="btn btn-outline-primary" for="timeFromBtn" style="width: 100%">Time
+                                From</label>
+                        </div>
+
+                        <div class="col-3 d-flex justify-content-center">
+                            <label for="timeFrom"></label>
+                            <input id="timeFrom" type="datetime-local" class="form-control" disabled>
+                        </div>
+                    </div>
+                    <div class="row py-1">
+                        <div class="col-2">
+                            <input type="checkbox" class="btn-check" id="timeToBtn" autocomplete="off">
+                            <label class="btn btn-outline-primary" for="timeToBtn" style="width: 100%">Time To</label>
+                        </div>
+                        <div class="col-3 d-flex justify-content-center">
+                            <label for="timeTo"></label>
+                            <input id="timeTo" type="datetime-local" class="form-control" disabled>
+                        </div>
+                    </div>
+                    <div class="row py-1">
+                        <div class="col-2">
+                            <button class="btn btn-dark" onclick="fetch_metrics()">Filter</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        {% for device in group.devices.all %}
+            <div id="chart-device-id-{{ device.pk }}" class="chart-cont"></div>
+        {% endfor %}
+
+        <div class="col-6">
+            {% include 'grafs/standard.html' with params=parameters group=group %}
         </div>
     </div>
 

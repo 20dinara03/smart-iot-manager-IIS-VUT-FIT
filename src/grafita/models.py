@@ -5,32 +5,34 @@ from timescale.db.models.models import TimescaleDateTimeField, TimescaleModel
 
 
 class DevicesGroup(models.Model):
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, unique=True)
     description = models.TextField(blank=True)
     admin = models.ForeignKey(User, on_delete=models.CASCADE, related_name='admin_groups')
     devices = models.ManyToManyField('Device', related_name='device_groups')
     shared_with = models.ManyToManyField(User, related_name='shared_groups')
-    kpis = models.ManyToManyField('KPI', related_name='kpi_groups')
+    requested_by = models.ManyToManyField(User, related_name='request_users')
 
     def __str__(self):
         return self.name
 
 
 class DeviceType(models.Model):
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, unique=True)
     description = models.TextField(null=True, blank=True)
-    attributes = ArrayField(models.CharField(max_length=100), null=True, blank=True)
+    admin = models.ForeignKey(User, on_delete=models.CASCADE, related_name='admin_types')
 
     def __str__(self):
         return self.name
 
 
 class DeviceTypeParameter(models.Model):
-    name = models.CharField(max_length=100)
-    min_value = models.IntegerField(default=0)
-    max_value = models.IntegerField(default=100)
+    name = models.CharField(max_length=100, null=True)
+    min_value = models.DecimalField(max_digits=6, decimal_places=2, null=True, default=0)
+    max_value = models.DecimalField(max_digits=6, decimal_places=2, null=True, default=100)
     device_type = models.ForeignKey(DeviceType, on_delete=models.CASCADE)
 
+    def __str__(self):
+        return self.name
 
 class Device(models.Model):
     name = models.CharField(max_length=100, unique=True)
@@ -67,8 +69,9 @@ class Device(models.Model):
 
 class KPI(models.Model):
     class_name = models.CharField(max_length=100)
-    parameter_name = models.CharField(max_length=100)
-    value = ArrayField(models.DecimalField(max_digits=6, decimal_places=2), size=5, null=True, blank=True)
+    parameter = models.ForeignKey(DeviceTypeParameter, on_delete=models.CASCADE, null=True)
+    value = models.DecimalField(max_digits=6, decimal_places=2, null=True)
+    device_group = models.ForeignKey(DevicesGroup, on_delete=models.CASCADE, null=True, blank=True)
 
 
 class Metric(TimescaleModel):

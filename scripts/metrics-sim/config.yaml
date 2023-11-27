@@ -1,0 +1,15 @@
+devices:
+  - id: 1
+    attrs:
+      - name: temperature
+        minVal: 0
+        maxVal: 100
+      - name: cpu
+        minVal: 0
+        maxVal: 100
+  - id: 2
+    attrs:
+      - name: movement
+        minVal: 0
+        maxVal: 1
+server: nats://localhost:4222
