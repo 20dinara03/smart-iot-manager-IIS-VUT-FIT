@@ -164,6 +164,7 @@
 
 
         {% for device in group.devices.all %}
+            <h1>{{ device.name }}</h1>
             <div id="chart-device-id-{{ device.pk }}" class="chart-cont"></div>
         {% endfor %}
 
