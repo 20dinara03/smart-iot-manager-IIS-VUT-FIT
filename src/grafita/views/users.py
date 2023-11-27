@@ -1,6 +1,7 @@
 from django.contrib.auth.models import Group, User
 from django.shortcuts import redirect
 from django.views.generic import DetailView, ListView
+
 from grafita.views.mixins import StaffMixin
 
 
@@ -26,13 +27,20 @@ class UserDetail(StaffMixin, DetailView):
 
     @staticmethod
     def post(request, pk: int):
-        user: User = User.objects.get(device_pk=pk)
+        try:
+            user: User = User.objects.get(device_pk=pk)
+        except User.DoesNotExist:
+            return redirect('users')
+
         data = request.POST
-        if data['password']:
+        if data.get('password'):
             user.set_password(data['password'])
-        user.email = data['email']
-        user.first_name = data['first_name']
-        user.last_name = data['last_name']
+        if data.get('email'):
+            user.email = data['email']
+        if data.get('first_name'):
+            user.first_name = data['first_name']
+        if data.get('last_name'):
+            user.last_name = data['last_name']
 
         user.save()
         return redirect('user', pk=pk)
