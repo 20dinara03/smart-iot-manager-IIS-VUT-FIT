@@ -5,9 +5,8 @@ WORKDIR /www
 RUN addgroup -S grafita && adduser -S grafita -G grafita
 
 # install poetry and dependencies
+RUN apk add libpq-dev gcc python3-dev musl-dev libffi-dev
 RUN pip install poetry
-RUN apk add libpq-dev
-
 
 USER grafita
 
