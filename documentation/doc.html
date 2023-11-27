@@ -133,8 +133,7 @@
         </ul>
     </dd>
     <dt>URL aplikace</dt>
-    <dd><a href="http://www.stud.fit.vutbr.cz/~xautor01/IIS">http://www.stud.fit.vutbr.cz/~xautor01/IIS</a></dd>
-    <dd>(pokud má aplikace více vstupních stránek, napi¹te obdobnì dal¹í URL)</dd>
+    <dd><a href="http://130.61.86.170:8000/public_page/">http://130.61.86.170:8000/public_page/</a></dd>
 </dl>
 
 <h2>U¾ivatelé systému pro testování</h2>
@@ -145,7 +144,7 @@
         <th>Role</th>
     </tr>
     <tr>
-        <td>admin</td>
+        <td>superuser</td>
         <td>secret</td>
         <td>Administrátor</td>
     </tr>
@@ -161,7 +160,7 @@
     </tr>
     <tr>
         <td>broker</td>
-        <td>osoba</td>
+        <td>pass</td>
         <td>Broker</td>
     </tr>
 </table>
@@ -709,12 +708,24 @@
 
 <h2>Instalace</h2>
 
-Struènì popi¹te:
-<ul>
-    <li>postup instalace na server,</li>
-    <li>softwarové po¾adavky (verze PHP apod.),</li>
-    <li>jak rozbalit, konfigurovat, inicializovat databázi, ...</li>
-</ul>
+<p><strong>Instalace Docker:</strong></p>
+<pre>
+<code># Pou¾ijte následující pøíkazy pro instalaci Dockeru pomocí nástroje Snap. Ujistìte se, ¾e pou¾íváte verzi 24.0.5.
+bash
+# Instalace Dockeru pomocí Snap
+snap install docker --channel=latest/edge
+</code></pre>
+
+<p><strong>Spu¹tìní Dockeru v pozadí:</strong></p>
+<pre>
+<code># Pou¾ijte následující pøíkaz k spu¹tìní Dockeru jako démona. Tento krok zajistí, ¾e Docker pobì¾í na pozadí.
+bash
+# Spu¹tìní Dockeru jako démona
+docker compose up -d
+</code></pre>
+
+<p><strong>Softwarové po¾adavky:</strong></p>
+<p>Docker ve verzi 24.0.5</p>
 
 <h2>Známé problémy</h2>
 <p>Na backendu a frontendu jsou rùzná nastavení UTC.</p>
