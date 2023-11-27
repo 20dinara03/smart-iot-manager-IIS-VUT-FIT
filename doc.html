@@ -154,8 +154,8 @@
         <td>Správce systému, tvùrce zaøízení a typù.</td>
     </tr>
     <tr>
-        <td>osoba</td>
-        <td>osoba</td>
+        <td>user</td>
+        <td>user</td>
         <td>Osoba s pøístupem k urèitým zaøízením a skupinám.</td>
     </tr>
     <tr>
@@ -168,10 +168,8 @@
 <p>Také v systému mohou být neregistrovaní u¾ivatelé.</p>
 
 <h3>Video</h3>
+<dd><a href="https://drive.google.com/file/d/1u-V8tPJx2Q1WolLaD3kNhtR-8J80zvWm/view?usp=sharing">https://drive.google.com/file/d/1u-V8tPJx2Q1WolLaD3kNhtR-8J80zvWm/view?usp=sharing</a></dd>
 
-<p>Pøilo¾te odkaz na komentované video demostrující pou¾ití informaèního systému. Zamìøte se na pøípady u¾ití definované
-    zadáním (napø. registrace u¾ivatele, správa u¾ivatelù a èinnosti jednotlivých rolí). Video nahrajte napøíklad na VUT
-    Google Drive, kde ho bude mo¾né pøímo spustit z odkazu.</p>
 
 <h2>Implementace</h2>
 
@@ -729,6 +727,7 @@ docker compose up -d
 
 <h2>Známé problémy</h2>
 <p>Na backendu a frontendu jsou rùzná nastavení UTC.</p>
-
+<p>Metriky a grafy se zobrazí pouze ve skupinách slo¾ených z ji¾ pùvodnì vytvoøených zaøízení. Je to proto, ¾e nepøipojujeme skuteèná zaøízení, která mohou do systému pøená¹et data, ale pouze ruènì generujeme metriky pomocí kódu pro konkrétní zaøízení vytvoøená tnami.</p>
+<p>Proto aktualizace metrik zprostøedkovatelem nefunguje jako ve skuteèném systému se skuteènými pøipojenými zaøízeními.</p>
 </body>
 </html>
